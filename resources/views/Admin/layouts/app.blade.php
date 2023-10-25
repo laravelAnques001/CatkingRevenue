@@ -22,6 +22,41 @@
                 @yield('content')
                 <!-- /content area -->
 
+                <div id="myModal" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false"
+                    role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"></div>
+
+                <script>
+                    $(document).on('click', '.ajaxviewmodel', function(event) {
+                        var tmp_html =
+                            '<div class="modal-dialog"><div class="modal-content"><div class="modal-body"><p class="ajaxloader text-center"><i class="fa fa-spinner fa-spin fa-3x fa-fw margin-bottom margin-top text-center"></i></p></div></div></div>';
+                        event.preventDefault();
+                        var selectedDate = $('input[name="date"]:checked').val();
+                        var selectedCourse = $('input[name="course"]:checked').val();
+                        var startDate = $('#startDate').val();
+                        var endDate = $('#endDate').val();
+                        {{--  console.log(selectedDate,'selectedDate');
+                        console.log(selectedCourse,'selectedCourse');
+                        console.log(startDate,'startDate');
+                        console.log(endDate,'endDate');  --}}
+                        var link = $(this).attr("href");
+                        $("#myModal").html(tmp_html);
+                        $('#myModal').modal('show');
+                        $.ajax({
+                            url: link,
+                            type: 'GET',
+                            data: {
+                                date: selectedDate,
+                                course: selectedCourse,
+                                start_date: startDate,
+                                end_date: endDate,
+                            },
+                            success: function(data) {
+                                {{--  $(".ajaxloader").hide();  --}}
+                                $("#myModal").html(data);
+                            }
+                        });
+                    });
+                </script>
                 @include('Admin.Partials.footer')
             </div>
         </div>

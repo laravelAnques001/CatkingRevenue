@@ -69,23 +69,53 @@
                                 shadowStyle: {
                                     color: 'rgba(var(--body-color-rgb), 0.025)'
                                 }
+                            },
+                            formatter: function(params) {
+                                var tooltip = '' + params[0]
+                                    .name;
+                                var oldValue = params[0].value > 0 ? params[0].value : 1;
+                                var per = (params[1].value - oldValue) / oldValue *
+                                    100;
+                                var percantage = params[0].value != 0 ? per.toFixed(2) : (
+                                    params[1].value != 0 ? 100 : 0);
+                                tooltip += percantage > 0 ?
+                                    '<span class="text-success ms-2">' + percantage +
+                                    '% <i class="ph-trend-up me-2"></i></span>' : (
+                                        percantage < 0 ? '<span class="text-danger ms-2">' +
+                                        percantage +
+                                        '% <i class="ph-trend-down me-2"></i></span>' :
+                                        '<span class="text-info ms-2">' +
+                                        percantage +
+                                        '% </span>');
+                                tooltip +=
+                                    '</p><p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary-2 align-items-center rounded-pill p-1 me-1"></span>Last Day<span class="ms-3"><b>' +
+                                    params[0].value.toLocaleString('en-US', {
+                                        style: 'decimal'
+                                    }) + '</b></span></p>';
+                                tooltip +=
+                                    '<p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary align-items-center rounded-pill p-1 me-1"></span>Today<span class="ms-4 ps-1"><b>' +
+                                    params[1].value.toLocaleString('en-US', {
+                                        style: 'decimal'
+                                    }) + '</b></span></p>';
+                                return tooltip;
                             }
                         },
 
                         // Horizontal axis
                         xAxis: [{
                             type: 'category',
-                            data: ['Direct', 'Website', 'Sales Team', 'Ads',
-                                'Free Cat Mocks',
-                                'Free NMAT Mocks', 'Free CAT Works hops',
-                                'Already Entrolled Other Institute',
-                                'Intersted In EMI',
-                                'Interested In Course Or Call Back Requests',
-                                'NAIs Chat',
-                                'Freebies On Website', 'Sulekha'
+                            data: ['Direct', 'Website', 'Sales team', 'Ads',
+                                'Free cat mocks',
+                                'Free nmat mocks', 'Free cat works hops',
+                                'Already entrolled other institute',
+                                'Intersted in EMI',
+                                'Interested in course or call back requests',
+                                'NAIs chat',
+                                'Freebies on website', 'Sulekha'
                             ],
                             axisLabel: {
-                                color: 'rgba(var(--body-color-rgb), .65)'
+                                color: 'rgba(var(--body-color-rgb), .65)',
+                                rotate: 30,
                             },
                             axisLine: {
                                 lineStyle: {
@@ -105,7 +135,7 @@
                         yAxis: [{
                             type: 'value',
                             axisLabel: {
-                                color: 'rgba(var(--body-color-rgb), .65)'
+                                color: 'rgba(var(--body-color-rgb), .65)',
                             },
                             axisLine: {
                                 show: true,
@@ -141,10 +171,20 @@
                                         barBorderRadius: [4, 4, 0, 0],
                                         label: {
                                             show: true,
-                                            position: 'top',
+                                            distance: -5,
+                                            rotate: 90,
+                                            bottom: 15,
+                                            align: 'left',
+                                            verticalAlign: 'middle',
+                                            position: 'bottom',
                                             fontWeight: 500,
                                             fontSize: 12,
-                                            color: 'var(--body-color)'
+                                            color: 'var(--body-color)',
+                                            formatter: function(d) {
+                                                return d.data.toLocaleString('en-US', {
+                                                    style: 'decimal'
+                                                });
+                                            }
                                         }
                                     }
                                 },
@@ -170,10 +210,20 @@
                                         barBorderRadius: [4, 4, 0, 0],
                                         label: {
                                             show: true,
-                                            position: 'top',
+                                            distance: -5,
+                                            rotate: 90,
+                                            bottom: 15,
+                                            align: 'left',
+                                            verticalAlign: 'middle',
+                                            position: 'bottom',
                                             fontWeight: 500,
                                             fontSize: 12,
-                                            color: 'var(--body-color)'
+                                            color: 'var(--body-color)',
+                                            formatter: function(d) {
+                                                return d.data.toLocaleString('en-US', {
+                                                    style: 'decimal'
+                                                });
+                                            }
                                         }
                                     }
                                 },
@@ -306,7 +356,8 @@
                                 '5 PM', '6 PM', '7 PM'
                             ],
                             axisLabel: {
-                                color: 'rgba(var(--body-color-rgb), .65)'
+                                color: 'rgba(var(--body-color-rgb), .65)',
+                                rotate: 30,
                             },
                             axisLine: {
                                 lineStyle: {
@@ -479,8 +530,8 @@
                             orient: 'vertical',
                             right: 0,
                             top: 'center',
-                            data: ['Agent Disconnect', 'Caller Disconnect',
-                                'System Disconnect'
+                            data: ['Agent disconnect', 'Caller disconnect',
+                                'System disconnect'
                             ],
                             itemHeight: 8,
                             itemWidth: 8,
@@ -507,15 +558,15 @@
                             },
                             data: [{
                                     value: 25,
-                                    name: 'Agent Disconnect'
+                                    name: 'Agent disconnect'
                                 },
                                 {
                                     value: 18,
-                                    name: 'Caller Disconnect'
+                                    name: 'Caller disconnect'
                                 },
                                 {
                                     value: 7,
-                                    name: 'System Disconnect'
+                                    name: 'System disconnect'
                                 },
                             ]
                         }]
@@ -585,7 +636,7 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="fw-semibold mb-0">Total Calls</h5>
+                <h5 class="fw-semibold mb-0">Total calls</h5>
                 <div class="ms-auto">
                     <span class="me-1 h5">826</span>
                     <i class="ph-info ms-1" data-bs-popup="tooltip"
@@ -596,11 +647,11 @@
                 <table class="table table-hover table-bordered">
                     <tbody>
                         <tr>
-                            <td>Total Connected Calls </td>
+                            <td>Total connected calls </td>
                             <td>736</td>
                         </tr>
                         <tr>
-                            <td>Total Unanswered Incoming Calls</td>
+                            <td>Total unanswered incoming calls</td>
                             <td>82</td>
                         </tr>
                     </tbody>
@@ -620,12 +671,12 @@
                 <table class="table table-hover table-bordered">
                     <tbody>
                         <tr>
-                            <td>Total Leads </td>
+                            <td>Total leads </td>
                             <td>85</td>
                             <td>100%</td>
                         </tr>
                         <tr>
-                            <td>Untouched Leads</td>
+                            <td>Untouched leads</td>
                             <td class="text-danger">13</td>
                             <td class="text-danger">15.29%</td>
                         </tr>
@@ -637,7 +688,7 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="fw-semibold mb-0">Converted Leads</h5>
+                <h5 class="fw-semibold mb-0">Converted leads</h5>
                 <div class="ms-auto">
                     <i class="ph-info ms-1" data-bs-popup="tooltip"
                         title="information about converted leads from agent-based and direct sources"></i>
@@ -647,11 +698,11 @@
                 <table class="table table-hover table-bordered">
                     <tbody>
                         <tr>
-                            <td>Agent Based Leads</td>
+                            <td>Agent based leads</td>
                             <td>56</td>
                         </tr>
                         <tr>
-                            <td>Direct Leads</td>
+                            <td>Direct leads</td>
                             <td>16</td>
                         </tr>
                     </tbody>
@@ -663,7 +714,7 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="fw-semibold mb-0">Inbound Calls </h5><i class="ph-phone-incoming ms-2"></i>
+                <h5 class="fw-semibold mb-0">Inbound calls </h5><i class="ph-phone-incoming ms-2"></i>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -682,7 +733,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">120</h5>
-                                            <span class="text-muted">Total Calls</span>
+                                            <span class="text-muted">Total calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -704,7 +755,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">100</h5>
-                                            <span class="text-muted">Connected Calls</span>
+                                            <span class="text-muted">Connected calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -726,7 +777,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">20</h5>
-                                            <span class="text-muted">Missed Calls</span>
+                                            <span class="text-muted">Missed calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -748,7 +799,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">8</h5>
-                                            <span class="text-muted">Calls Queue</span>
+                                            <span class="text-muted">Calls queue</span>
                                         </div>
                                     </div>
                                 </div>
@@ -770,7 +821,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">10.2</h5>
-                                            <span class="text-muted">Duration Hrs</span>
+                                            <span class="text-muted">Duration hrs</span>
                                         </div>
                                     </div>
                                 </div>
@@ -792,7 +843,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">1.35</h5>
-                                            <span class="text-muted">Avg Duration In Min</span>
+                                            <span class="text-muted">Avg duration in min</span>
                                         </div>
                                     </div>
                                 </div>
@@ -814,7 +865,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">16</h5>
-                                            <span class="text-muted">Number Of Agents</span>
+                                            <span class="text-muted">Number of agents</span>
                                         </div>
                                     </div>
                                 </div>
@@ -828,7 +879,7 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="fw-semibold mb-0">Outbound Calls </h5>
+                <h5 class="fw-semibold mb-0">Outbound calls </h5>
                 <i class="ph-phone-outgoing ms-2"></i>
             </div>
             <div class="card-body">
@@ -848,7 +899,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">626</h5>
-                                            <span class="text-muted">Total Calls</span>
+                                            <span class="text-muted">Total calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -870,7 +921,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">576</h5>
-                                            <span class="text-muted">Connected Calls</span>
+                                            <span class="text-muted">Connected calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -892,7 +943,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">50</h5>
-                                            <span class="text-muted">Unanswered Calls</span>
+                                            <span class="text-muted">Unanswered calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -914,7 +965,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">8</h5>
-                                            <span class="text-muted">Calls Queue</span>
+                                            <span class="text-muted">Calls queue</span>
                                         </div>
                                     </div>
                                 </div>
@@ -936,7 +987,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">20.4</h5>
-                                            <span class="text-muted">Duration Hrs</span>
+                                            <span class="text-muted">Duration hrs</span>
                                         </div>
                                     </div>
                                 </div>
@@ -958,7 +1009,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">1.47</h5>
-                                            <span class="text-muted">Avg Duration In Min</span>
+                                            <span class="text-muted">Avg duration in min</span>
                                         </div>
                                     </div>
                                 </div>
@@ -980,7 +1031,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">16</h5>
-                                            <span class="text-muted">Number Of Agents</span>
+                                            <span class="text-muted">Number of agents</span>
                                         </div>
                                     </div>
                                 </div>
@@ -994,7 +1045,7 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="fw-semibold mb-0">Progressive Calls </h5>
+                <h5 class="fw-semibold mb-0">Progressive calls </h5>
                 <i class="ph-phone-outgoing ms-2"></i>
             </div>
             <div class="card-body">
@@ -1014,7 +1065,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">80</h5>
-                                            <span class="text-muted">Total Calls</span>
+                                            <span class="text-muted">Total calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1036,7 +1087,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">60</h5>
-                                            <span class="text-muted">Connected Calls</span>
+                                            <span class="text-muted">Connected calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1058,7 +1109,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">12</h5>
-                                            <span class="text-muted">Missed Calls</span>
+                                            <span class="text-muted">Missed calls</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1080,7 +1131,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">8</h5>
-                                            <span class="text-muted">Calls Queue</span>
+                                            <span class="text-muted">Calls queue</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1102,7 +1153,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">5.8</h5>
-                                            <span class="text-muted">Duration Hrs</span>
+                                            <span class="text-muted">Duration hrs</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1124,7 +1175,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">1.12</h5>
-                                            <span class="text-muted">Avg Duration In Min</span>
+                                            <span class="text-muted">Avg duration in min</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1146,7 +1197,7 @@
                                         </a>
                                         <div class="ms-3">
                                             <h5 class="mb-0">16</h5>
-                                            <span class="text-muted">Number Of Agents</span>
+                                            <span class="text-muted">Number of agents</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1161,7 +1212,7 @@
     <div class="col-lg-8">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="fw-semibold mb-0">Conversion Ratio</h5>
+                <h5 class="fw-semibold mb-0">Conversion ratio</h5>
                 <div class="ms-auto">
                     <div class="d-flex align-items-center text-muted fs-sm">
                         <span class="bg-primary rounded-pill p-1 me-2"></span>Leads
@@ -1195,26 +1246,26 @@
     <div class="col-lg-8">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Per Agent Conversion</h5>
+                <h5 class="mb-0">Per agent conversion</h5>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover table-xxs">
                     <thead>
                         <tr>
                             <th>Sr.No</th>
-                            <th>Agent Name</th>
+                            <th>Agent name</th>
                             <th>Leads</th>
-                            <th>Converted Leads</th>
-                            <th>Untouched Leads</th>
-                            <th>Avg Talk Time</th>
+                            <th>Converted leads</th>
+                            <th>Untouched leads</th>
+                            <th>Avg talk time</th>
                             <th>
                                 <div class="d-flex align-items-center">
                                     <span class="d-inline-block bg-primary rounded-pill p-1 me-1"></span>
-                                    Connected Calls
+                                    Connected calls
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="d-inline-block bg-primary-2 rounded-pill p-1 me-1"></span>
-                                    Disconnected Calls
+                                    Disconnected calls
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span>0</span>
@@ -1229,7 +1280,7 @@
                     <tbody>
                         <tr class="active bg-enrollment-5">
                             <td>01</td>
-                            <td>Deeksha Kapoor</td>
+                            <td>Deeksha kapoor</td>
                             <td>17</td>
                             <td>12</td>
                             <td class="text-danger">5</td>
@@ -1251,7 +1302,7 @@
                         </tr>
                         <tr>
                             <td>02</td>
-                            <td>Farnaz Khan</td>
+                            <td>Farnaz khan</td>
                             <td>17</td>
                             <td>11</td>
                             <td class="text-danger">16</td>
@@ -1273,7 +1324,7 @@
                         </tr>
                         <tr>
                             <td>03</td>
-                            <td>Vanshita Hiranandi</td>
+                            <td>Vanshita hiranandi</td>
                             <td>15</td>
                             <td>10</td>
                             <td class="text-danger">5</td>
@@ -1295,7 +1346,7 @@
                         </tr>
                         <tr>
                             <td>04</td>
-                            <td>Deeksha Kapoor</td>
+                            <td>Deeksha kapoor</td>
                             <td>17</td>
                             <td>12</td>
                             <td class="text-danger">5</td>
@@ -1317,7 +1368,7 @@
                         </tr>
                         <tr>
                             <td>05</td>
-                            <td>Farnaz Khan</td>
+                            <td>Farnaz khan</td>
                             <td>17</td>
                             <td>11</td>
                             <td class="text-danger">16</td>
@@ -1339,7 +1390,7 @@
                         </tr>
                         <tr>
                             <td>06</td>
-                            <td>Vanshita Hiranandi</td>
+                            <td>Vanshita hiranandi</td>
                             <td>15</td>
                             <td>10</td>
                             <td class="text-danger">5</td>
@@ -1361,7 +1412,7 @@
                         </tr>
                         <tr>
                             <td>07</td>
-                            <td>Deeksha Kapoor</td>
+                            <td>Deeksha kapoor</td>
                             <td>17</td>
                             <td>12</td>
                             <td class="text-danger">5</td>
@@ -1383,7 +1434,7 @@
                         </tr>
                         <tr>
                             <td>08</td>
-                            <td>Farnaz Khan</td>
+                            <td>Farnaz khan</td>
                             <td>17</td>
                             <td>11</td>
                             <td class="text-danger">16</td>
@@ -1405,7 +1456,7 @@
                         </tr>
                         <tr>
                             <td>09</td>
-                            <td>Vanshita Hiranandi</td>
+                            <td>Vanshita hiranandi</td>
                             <td>15</td>
                             <td>10</td>
                             <td class="text-danger">5</td>
@@ -1427,7 +1478,7 @@
                         </tr>
                         <tr>
                             <td>10</td>
-                            <td>Deeksha Kapoor</td>
+                            <td>Deeksha kapoor</td>
                             <td>17</td>
                             <td>12</td>
                             <td class="text-danger">5</td>
@@ -1449,7 +1500,7 @@
                         </tr>
                         <tr>
                             <td>11</td>
-                            <td>Farnaz Khan</td>
+                            <td>Farnaz khan</td>
                             <td>17</td>
                             <td>11</td>
                             <td class="text-danger">16</td>
@@ -1471,7 +1522,7 @@
                         </tr>
                         <tr>
                             <td>12</td>
-                            <td>Vanshita Hiranandi</td>
+                            <td>Vanshita hiranandi</td>
                             <td>15</td>
                             <td>10</td>
                             <td class="text-danger">5</td>
@@ -1500,7 +1551,7 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Call Timing </h5>
+                <h5 class="mb-0">Call timing </h5>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover table-bordered">
@@ -1510,12 +1561,12 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>09:00 Am - 09:00 Pm</td>
+                            <td>09:00 AM - 09:00 PM</td>
                             <td>576</td>
                         </tr>
                         <tr>
-                            <td>09:00 Pm - 09:00 Am<br>
-                                (After Office Hours)
+                            <td>09:00 PM - 09:00 AM<br>
+                                (After office hours)
                             </td>
                             <td>120</td>
                         </tr>
@@ -1525,7 +1576,7 @@
         </div>
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="fw-semibold mb-0">Total Missed Calls</h5>
+                <h5 class="fw-semibold mb-0">Total missed calls</h5>
                 <div class="ms-auto">
                     <span class="me-1 h5">50</span>
                     <i class="ph-info ms-1 " data-bs-popup="tooltip" title="Agent Disconnect" data-bs-toggle="modal"
@@ -1545,7 +1596,7 @@
     <div class="modal-dialog modal-sm modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Agent Disconnect</h5>
+                <h5 class="modal-title">Agent disconnect</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
@@ -1553,7 +1604,7 @@
                 <table class="table table-bordered table-framed">
                     <thead>
                         <tr>
-                            <th>Agent Name</th>
+                            <th>Agent name</th>
                             <th>Inbound</th>
                             <th>outbound</th>
                         </tr>
@@ -1565,12 +1616,12 @@
                             <td>4</td>
                         </tr>
                         <tr>
-                            <td>Seema Yadav</td>
+                            <td>Seema yadav</td>
                             <td>6</td>
                             <td>3</td>
                         </tr>
                         <tr>
-                            <td>Prerana Panda</td>
+                            <td>Prerana panda</td>
                             <td>8</td>
                             <td>4</td>
                         </tr>

@@ -30,6 +30,8 @@ Route::get('/clear-cache', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('ceo-revenue', [CEOController::class, 'index'])->name('ceo-revenue');
+    Route::get('ceo-revenue-model', [CEOController::class, 'revenueModel'])->name('ceo-revenue-model');
+    Route::post('ceo-revenue-getData', [CEOController::class, 'getData'])->name('ceo-revenue-getData');
 });
 
 // Auth::routes();

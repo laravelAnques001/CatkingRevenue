@@ -1,6 +1,15 @@
-{{--  <script src="{{ asset('assets/js/ion_rangeslider.min.js') }}"></script>  --}}
+@php
+    $courseArr = json_encode($revenue['course_name']);
+    $todayRevenue = json_encode($revenue['today_revenue']);
+    $previousDayRevenue = json_encode($revenue['previous_day_revenue']);
+@endphp
+
 <script>
     $(document).ready(function() {
+        const courseArr = <?= $courseArr ?>;
+        const todayRevenue = <?= $todayRevenue ?>;
+        const previousDayRevenue = <?= $previousDayRevenue ?>;
+
         var EchartsColumnsBasicLight = function() {
             var _columnsBasicLightExample = function() {
                 if (typeof echarts == 'undefined') {
@@ -72,22 +81,50 @@
                                 shadowStyle: {
                                     color: 'rgba(var(--body-color-rgb), 0.025)'
                                 }
+                            },
+                            formatter: function(params) {
+                                var tooltip = '' + params[0]
+                                    .name;
+                                var oldValue = params[0].value > 0 ? params[0].value : 1;
+                                var per = (params[1].value - oldValue) / oldValue *
+                                    100;
+                                var percantage = params[0].value != 0 ? per.toFixed(2) : (
+                                    params[1].value != 0 ? 100 : 0);
+                                tooltip += percantage > 0 ?
+                                    '<span class="text-success ms-2">' + percantage +
+                                    '% <i class="ph-trend-up me-2"></i></span>' : (
+                                        percantage < 0 ? '<span class="text-danger ms-2">' +
+                                        percantage +
+                                        '% <i class="ph-trend-down me-2"></i></span>' :
+                                        '<span class="text-info ms-2">' +
+                                        percantage +
+                                        '% </span>');
+                                tooltip +=
+                                    '</p><p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary-2 align-items-center rounded-pill p-1 me-1"></span>Last Day<span class="ms-3"><b>' +
+                                    params[0].value.toLocaleString('en-US', {
+                                        style: 'decimal'
+                                    }) + '</b></span></p>';
+                                tooltip +=
+                                    '<p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary align-items-center rounded-pill p-1 me-1"></span>Today<span class="ms-4 ps-1"><b>' +
+                                    params[1].value.toLocaleString('en-US', {
+                                        style: 'decimal'
+                                    }) + '</b></span></p>';
+                                return tooltip;
                             }
                         },
 
                         // Horizontal axis
                         xAxis: [{
                             type: 'category',
-                            data: ['CAT', 'Non-CAT', 'StudyAbroad', 'UnderGrad', 'GDPI',
-                                'Mocks'
-                            ],
+                            data: courseArr,
                             axisLabel: {
-                                color: 'rgba(var(--body-color-rgb), .65)'
+                                color: 'rgba(var(--body-color-rgb), .65)',
+                                rotate: 30
                             },
                             axisLine: {
                                 lineStyle: {
-                                    color: 'var(--gray-500)'
-                                }
+                                    color: 'var(--gray-500)',
+                                },
                             },
                             splitLine: {
                                 show: true,
@@ -102,7 +139,7 @@
                         yAxis: [{
                             type: 'value',
                             axisLabel: {
-                                color: 'rgba(var(--body-color-rgb), .65)'
+                                color: 'rgba(var(--body-color-rgb), .65)',
                             },
                             axisLine: {
                                 show: true,
@@ -129,24 +166,26 @@
                         series: [{
                                 name: 'Previous Day',
                                 type: 'bar',
-                                data: ["{{ $revenue['previous_day_total_revenue']['CAT'] }}",
-                                    "{{ $revenue['previous_day_total_revenue']['GDPI'] }}",
-                                    "{{ $revenue['previous_day_total_revenue']['Mocks'] }}",
-                                    "{{ $revenue['previous_day_total_revenue']['Non-CAT'] }}",
-                                    "{{ $revenue['previous_day_total_revenue']['Study Abroad'] }}",
-                                    "{{ $revenue['previous_day_total_revenue']['UnderGrad'] }}",
-                                ],
-
-                                // data: [33, 59, 50, 30, 70, 85, 65, 87, 64, 33],
+                                data: previousDayRevenue,
                                 itemStyle: {
                                     normal: {
                                         barBorderRadius: [4, 4, 0, 0],
                                         label: {
                                             show: true,
-                                            position: 'top',
+                                            distance: -5,
+                                            rotate: 90,
+                                            bottom: 15,
+                                            align: 'left',
+                                            verticalAlign: 'middle',
+                                            position: 'bottom',
                                             fontWeight: 500,
                                             fontSize: 12,
-                                            color: 'var(--body-color)'
+                                            color: 'var(--body-color)',
+                                            formatter: function(d) {
+                                                return d.data.toLocaleString('en-US', {
+                                                    style: 'decimal'
+                                                });
+                                            }
                                         }
                                     }
                                 },
@@ -163,23 +202,26 @@
                             {
                                 name: 'Today Day',
                                 type: 'bar',
-                                data: ["{{ $revenue['today_day_total_revenue']['CAT'] }}",
-                                    "{{ $revenue['today_day_total_revenue']['GDPI'] }}",
-                                    "{{ $revenue['today_day_total_revenue']['Mocks'] }}",
-                                    "{{ $revenue['today_day_total_revenue']['Non-CAT'] }}",
-                                    "{{ $revenue['today_day_total_revenue']['Study Abroad'] }}",
-                                    "{{ $revenue['today_day_total_revenue']['UnderGrad'] }}"
-                                ],
-                                // data: [33, 59, 50, 30, 70, 85, 65, 87, 64, 33],
+                                data: todayRevenue,
                                 itemStyle: {
                                     normal: {
                                         barBorderRadius: [4, 4, 0, 0],
                                         label: {
                                             show: true,
-                                            position: 'top',
+                                            distance: -5,
+                                            rotate: 90,
+                                            bottom: 15,
+                                            align: 'left',
+                                            verticalAlign: 'middle',
+                                            position: 'bottom',
                                             fontWeight: 500,
                                             fontSize: 12,
-                                            color: 'var(--body-color)'
+                                            color: 'var(--body-color)',
+                                            formatter: function(d) {
+                                                return d.data.toLocaleString('en-US', {
+                                                    style: 'decimal'
+                                                });
+                                            }
                                         }
                                     }
                                 },
@@ -260,12 +302,16 @@
                         },
                         data: {
                             columns: [
-                                ['CAT', 10],
-                                ['Non-CAT', 10],
-                                ['Study Abroad', 10],
-                                ['UnderGrad', 10],
-                                ['GDPI', 10],
-                                ['Mocks', 10],
+                                ['CAT', "{{ $revenue['enrollment_per']['cat'] }}"],
+                                ['Non-CAT', "{{ $revenue['enrollment_per']['non-cat'] }}"],
+                                ['Study Abroad',
+                                    "{{ $revenue['enrollment_per']['study-abroad'] }}"
+                                ],
+                                ['UnderGrad',
+                                    "{{ $revenue['enrollment_per']['undergrad'] }}"
+                                ],
+                                ['GDPI', "{{ $revenue['enrollment_per']['gdpi'] }}"],
+                                ['Mocks', "{{ $revenue['enrollment_per']['mocks'] }}"],
                             ],
                             type: 'donut'
                         },
@@ -275,30 +321,30 @@
                     });
 
                     // Change data
-                    setTimeout(function() {
+                    {{--  setTimeout(function() {
                         donut_chart.load({
                             columns: [
                                 ["CAT",
-                                    "{{ $revenue['enrollment']['CAT'] }}"
+                                    "{{ $revenue['enrollment']['cat'] }}"
                                 ],
                                 ["Non-CAT",
-                                    "{{ $revenue['enrollment']['Non-CAT'] }}"
+                                    "{{ $revenue['enrollment']['non-cat'] }}"
                                 ],
                                 ["Study Abroad",
-                                    "{{ $revenue['enrollment']['Study Abroad'] }}"
+                                    "{{ $revenue['enrollment']['study-abroad'] }}"
                                 ],
                                 ["UnderGrad",
-                                    "{{ $revenue['enrollment']['UnderGrad'] }}"
+                                    "{{ $revenue['enrollment']['undergrad'] }}"
                                 ],
                                 ["GDPI",
-                                    "{{ $revenue['enrollment']['GDPI'] }}"
+                                    "{{ $revenue['enrollment']['gdpi'] }}"
                                 ],
                                 ["Mocks",
-                                    "{{ $revenue['enrollment']['Mocks'] }}"
+                                    "{{ $revenue['enrollment']['mocks'] }}"
                                 ],
                             ]
                         });
-                    }, 1000);
+                    }, 1000);  --}}
 
                 }
             };
@@ -328,7 +374,6 @@
 
     });
 </script>
-{{--  @dd($revenue)  --}}
 <div class="row">
     <div class="col-lg-6">
         <div class="card">
@@ -342,7 +387,7 @@
                 </div>
             </div>
             <div class="card-body pt-0">
-                <p class="mb-3">Total No Of Enrollment</p>
+                <p class="mb-3">Total no of enrollment</p>
                 <div class="progress mb-3" style="height: 0.625rem;">
                     <div class="progress-bar bg-enrollment"
                         style="width: {{ $revenue['this_year_total_enrollments_per'] }}%"
@@ -360,7 +405,7 @@
                         data-bs-popup="tooltip"></div>
                 </div>
 
-                <p class="mb-3">Enrollments Through installments & EMI </p>
+                <p class="mb-3">Enrollments through installments & EMI </p>
                 <div class="progress mb-3" style="height: 0.625rem;">
                     <div class="progress-bar bg-enrollment"
                         style="width: {{ $revenue['this_year_emi_enrollments_per'] }}%"
@@ -390,15 +435,15 @@
                 </div>
             </div>
             <div class="card-body pt-0">
-                <p class="mb-3">Total Revenue
+                <p class="mb-3">Total revenue
                     @if ($revenue['total_revenue_per'] > 0)
                         <span class="text-success ms-2">{{ $revenue['total_revenue_per'] }}% <i
                                 class="ph-trend-up me-2"></i></span>
                     @elseif($revenue['total_revenue_per'] < 0)
                         <span class="text-danger ms-2">{{ $revenue['total_revenue_per'] }}% <i
                                 class="ph-trend-down me-2"></i></span>
-                    @else
-                        <span class="text-info ms-2">0.00%</span>
+                        {{--  @else
+                        <span class="text-info ms-2">0.00%</span>  --}}
                     @endif
                 </p>
                 <div class="progress mb-3" style="height: 0.625rem;">
@@ -416,15 +461,15 @@
                     </div>
                 </div>
 
-                <p class="mb-3">Revenue From Installments & EMI
+                <p class="mb-3">Revenue from installments & EMI
                     @if ($revenue['total_emi_revenue_per'] > 0)
                         <span class="text-success ms-2">{{ $revenue['total_emi_revenue_per'] }}% <i
                                 class="ph-trend-up me-2"></i></span>
                     @elseif($revenue['total_emi_revenue_per'] < 0)
                         <span class="text-danger ms-2">{{ $revenue['total_emi_revenue_per'] }}% <i
                                 class="ph-trend-down me-2"></i></span>
-                    @else
-                        <span class="text-info ms-2">0.00% </span>
+                        {{--  @else
+                        <span class="text-info ms-2">0.00% </span>  --}}
                     @endif
                 </p>
                 <div class="progress mb-3" style="height: 0.625rem;">
@@ -448,9 +493,17 @@
         <!-- Basic columns -->
         <div class="card">
             <div class="card-header d-flex align-items-center border-0">
-                <h5 class="fw-semibold mb-0">Total No Of Enrollment </h5>
-                <span class="ms-3 me-2 ">100</span>
-                <span class="text-danger ">-12.01% <i class="ph-trend-down me-2"></i></span>
+                <h5 class="fw-semibold mb-0">Total no of enrollment </h5>
+                {{--  <span class="ms-3 me-2 ">100</span>  --}}
+                @if ($revenue['enrollment_per_avg'] > 0)
+                    <span class="text-success ms-2">{{ $revenue['enrollment_per_avg'] }}% <i
+                            class="ph-trend-up me-2"></i></span>
+                @elseif($revenue['enrollment_per_avg'] < 0)
+                    <span class="text-danger ms-2">{{ $revenue['enrollment_per_avg'] }}% <i
+                            class="ph-trend-down me-2"></i></span>
+                    {{--  @else
+                    <span class="text-info ms-2">0.00% </span>  --}}
+                @endif
             </div>
 
             <div class="card-body pt-0">
@@ -467,60 +520,60 @@
                                 </thead>
                                 <tbody>
                                     <tr
-                                        class="{{ $revenue['enrollment']['CAT'] == $revenue['enrollment']['maxValue'] && $revenue['enrollment']['CAT'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['enrollment_per']['cat'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['cat'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td>
                                             <div class="d-flex align-items-center"><span
                                                     class="d-inline-block bg-enrollment rounded-pill p-1 me-1"></span>CAT
                                             </div>
                                         </td>
-                                        <td>54</td>
-                                        <td>{{ $revenue['enrollment']['CAT'] }}</td>
+                                        <td>{{ $revenue['leads']['cat'] }}</td>
+                                        <td>{{ $revenue['enrollment_per']['cat'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment']['Non-CAT'] == $revenue['enrollment']['maxValue'] && $revenue['enrollment']['Non-CAT'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['enrollment_per']['non-cat'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['non-cat'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td>
                                             <div class="d-flex align-items-center"><span
                                                     class="d-inline-block bg-enrollment-9 rounded-pill p-1 me-1"></span>NON-CAT
                                             </div>
                                         </td>
-                                        <td>42</td>
-                                        <td>{{ $revenue['enrollment']['Non-CAT'] }}</td>
+                                        <td>{{ $revenue['leads']['non-cat'] }}</td>
+                                        <td>{{ $revenue['enrollment_per']['non-cat'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment']['Study Abroad'] == $revenue['enrollment']['maxValue'] && $revenue['enrollment']['Study Abroad'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['enrollment_per']['study-abroad'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['study-abroad'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td>
                                             <div class="d-flex align-items-center"><span
                                                     class="d-inline-block bg-enrollment-8 rounded-pill p-1 me-1"></span>Study
                                                 Abroad</div>
                                         </td>
-                                        <td>36</td>
-                                        <td>{{ $revenue['enrollment']['Study Abroad'] }}</td>
+                                        <td>{{ $revenue['leads']['study-abroad'] }}</td>
+                                        <td>{{ $revenue['enrollment_per']['study-abroad'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment']['UnderGrad'] == $revenue['enrollment']['maxValue'] && $revenue['enrollment']['UnderGrad'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['enrollment_per']['undergrad'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['undergrad'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td>
                                             <div class="d-flex align-items-center"><span
                                                     class="d-inline-block bg-enrollment-7 rounded-pill p-1 me-1"></span>UnderGrad
                                             </div>
                                         </td>
-                                        <td>23</td>
-                                        <td>{{ $revenue['enrollment']['UnderGrad'] }}</td>
+                                        <td>{{ $revenue['leads']['undergrad'] }}</td>
+                                        <td>{{ $revenue['enrollment_per']['undergrad'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment']['GDPI'] == $revenue['enrollment']['maxValue'] && $revenue['enrollment']['GDPI'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['enrollment_per']['gdpi'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['gdpi'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td><span
                                                 class="d-inline-block bg-enrollment-6 rounded-pill p-1 me-1"></span>GDPI
                                         </td>
-                                        <td>19</td>
-                                        <td>{{ $revenue['enrollment']['GDPI'] }}</td>
+                                        <td>{{ $revenue['leads']['gdpi'] }}</td>
+                                        <td>{{ $revenue['enrollment_per']['gdpi'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment']['Mocks'] == $revenue['enrollment']['maxValue'] && $revenue['enrollment']['Mocks'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['enrollment_per']['mocks'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['mocks'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td><span
                                                 class="d-inline-block bg-enrollment-5 rounded-pill p-1 me-1"></span>Mocks
                                         </td>
-                                        <td>14</td>
-                                        <td>{{ $revenue['enrollment']['Mocks'] }}</td>
+                                        <td>{{ $revenue['leads']['mocks'] }}</td>
+                                        <td>{{ $revenue['enrollment_per']['mocks'] }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -540,18 +593,20 @@
         <!-- Basic columns -->
         <div class="card">
             <div class="card-header d-flex align-items-center border-0">
-                <h5 class="fw-semibold mb-0">Total Revenue</h5>
-                <span class="mx-2 ">{{ $revenue['total_revenue']['sum'] }}</span>
-                @if ($revenue['total_revenue']['per'] > 0)
+                <h5 class="fw-semibold mb-0">Total revenue</h5>
+                @if ($revenue['total_today_revenue'] != 0)
+                    <span class="mx-2 bg-primary-2 roundedp-1">{{ $revenue['total_today_revenue'] }}</span>
+                @endif
+                @if ($revenue['total_per_revenue'] > 0)
                     <span class="text-success ">
-                        {{ $revenue['total_revenue']['per'] }}% <i class="ph-trend-up me-2"></i>
+                        {{ $revenue['total_per_revenue'] }}% <i class="ph-trend-up me-2"></i>
                     </span>
-                @elseif($revenue['total_revenue']['per'] < 0)
+                @elseif($revenue['total_per_revenue'] < 0)
                     <span class="text-danger ">
-                        {{ $revenue['total_revenue']['per'] }}% <i class="ph-trend-down me-2"></i>
+                        {{ $revenue['total_per_revenue'] }}% <i class="ph-trend-down me-2"></i>
                     </span>
-                @else
-                    <span class="text-info ms-2">0.00% </span>
+                    {{--  @else
+                    <span class="text-info ms-2">0.00% </span>  --}}
                 @endif
                 <div class="ms-auto ">
                     <div class="d-flex align-items-center text-muted fs-sm">
@@ -573,21 +628,24 @@
     <div class="col-xl-6">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="fw-semibold mb-0">Failed Order</h5>
+                <h5 class="fw-semibold mb-0">Failed order</h5>
                 <div class="ms-auto">
-                    <i class="ph-info " data-bs-toggle="modal" data-bs-target="#modal_large" data-bs-popup="tooltip"
-                        title="Failed Order"></i>
+                    {{--  <i class="ph-info " data-bs-toggle="modal" data-bs-target="#modal_large" data-bs-popup="tooltip"
+                        title="Failed Order"></i>  --}}
+                    <a href="{{ route('ceo-revenue-model') }}" class="ajaxviewmodel">
+                        <i class="ph-info" data-bs-popup="tooltip" title="Failed Order"></i>
+                    </a>
                 </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover table-bordered">
                     <tbody>
                         <tr>
-                            <td>Failed Order With Successful Repeat Purchase </td>
+                            <td>Failed order with successful repeat purchase </td>
                             <td>{{ $revenue['failed_order_repeat_purchase'] }}</td>
                         </tr>
                         <tr>
-                            <td>Actual Failed Orders The Ones Who Did Not Purchase</td>
+                            <td>Actual failed orders the ones who did not purchase</td>
                             <td>{{ $revenue['failed_order_dont_purchase'] }}</td>
                         </tr>
                     </tbody>
@@ -597,178 +655,3 @@
     </div>
 </div>
 
-<!-- Large modal -->
-<div id="modal_large" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Students List For Failed Order</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="table-responsive border-radius-15">
-                <table class="table table-bordered table-framed">
-                    <thead>
-                        <tr>
-                            <th>S.No</th>
-                            <th>Order Id</th>
-                            <th>Name</th>
-                            <th>Email Id</th>
-                            <th>Phone Number</th>
-                            <th>Course Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($revenue['failed_order_list'] as $key => $order)
-                            <tr>
-                                <td>{{ ++$key }}</td>
-                                <td>ID: {{ $order->order_id }}</td>
-                                <td class="d-flex align-items-center">
-                                    <img src="https://ui-avatars.com/api/?background=random&color=random&name={{ $order->name }}&size=512&rounded=true&format=svg"
-                                        class="rounded-pill w-32px" alt="">
-                                    <span class="ms-1">{{ $order->name }}</span>
-                                </td>
-                                <td>{{ $order->email }}</td>
-                                <td>{{ $order->phone_number }}</td>
-                                <td>{{ $order->course_name }}</td>
-                            </tr>
-                        @endforeach
-                        {{--  <tr>
-                            <td>1</td>
-                            <td>ID: 43178</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Abhijeet Kumar Shaw</span>
-                            </td>
-                            <td>abhijeetkumarshaw@user.com</td>
-                            <td>+919355574544</td>
-                            <td>IIM WAT PI</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>ID: 43178</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Arjun Gnanasambandam</span>
-                            </td>
-                            <td>ArjunGnanasamban@user.com</td>
-                            <td>+917555381084</td>
-                            <td>CAT2024+GMAT</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>ID: 22739</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Anuja Shinde</span>
-                            </td>
-                            <td>AnujaShinde@user.com</td>
-                            <td>+917555486014</td>
-                            <td>IELTS Intensive</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>ID: 97174</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Babbi Khan</span>
-                            </td>
-                            <td>BabbiKhan@user.com</td>
-                            <td>+917555681931</td>
-                            <td>Intensive 2023</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>ID: 22739</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Harchahat Singh Sandhu</span>
-                            </td>
-                            <td>HarchahatSingh@user.com</td>
-                            <td>+918555382423</td>
-                            <td>Turbo 2023</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>ID: 39635</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Kanishka Kapoor</span>
-                            </td>
-                            <td>KanishkaKapoor@user.com</td>
-                            <td>+918555363120</td>
-                            <td>CAT2024+GMAT</td>
-                        </tr>
-                        <tr>
-                            <td>7</td>
-                            <td>ID: 39635</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Karthik Vijayakumar Reddy</span>
-                            </td>
-                            <td>KarthikVijayakumar@user.com</td>
-                            <td>+919855506795</td>
-                            <td>IIM WAT PI</td>
-                        </tr>
-                        <tr>
-                            <td>8</td>
-                            <td>ID: 70668</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Saaquib Mohammad</span>
-                            </td>
-                            <td>SaaquibMohammad@user.com</td>
-                            <td>+918555989279</td>
-                            <td>Intensive 2023</td>
-                        </tr>
-                        <tr>
-                            <td>8</td>
-                            <td>ID: 70668</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Saaquib Mohammad</span>
-                            </td>
-                            <td>SaaquibMohammad@user.com</td>
-                            <td>+918555989279</td>
-                            <td>Intensive 2023</td>
-                        </tr>
-                        <tr>
-                            <td>9</td>
-                            <td>ID: 43756</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Tyson Jayanth</span>
-                            </td>
-                            <td>TysonJayanth@user.com</td>
-                            <td>+917555078586</td>
-                            <td>IELTS Intensive</td>
-                        </tr>
-                        <tr>
-                            <td>10</td>
-                            <td>ID: 97174</td>
-                            <td class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/placeholder.jpg') }}" class="rounded-pill w-32px"
-                                    alt="">
-                                <span class="ms-1">Yamini Gowda</span>
-                            </td>
-                            <td>YaminiGowda@user.com</td>
-                            <td>+919755523240</td>
-                            <td>Intensive 2023</td>
-                        </tr>  --}}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- /large modal -->

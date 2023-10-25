@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class CEOController extends Controller
 {
@@ -41,32 +42,32 @@ class CEOController extends Controller
                 return view('Admin.CeoRevenue.sales');
             } elseif ($course == 'cat') {
                 // $cat = $this->getCATData();
-                $commonGraph = $this->commonGraphData('cat');
+                $commonGraph = $this->commonData('cat');
                 // return json_encode($commonGraph);
                 return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
             } elseif ($course == 'non_cat') {
                 // $nonCat = $this->getNonCATData();
-                $commonGraph = $this->commonGraphData('non-cat');
+                $commonGraph = $this->commonData('non-cat');
                 // return json_encode($nonCat);
                 return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
             } elseif ($course == 'study_abroad') {
                 // $studyAbroad = $this->getStudyAbroadData();
-                $commonGraph = $this->commonGraphData('study-abroad');
+                $commonGraph = $this->commonData('study-abroad');
                 // return json_encode($commonGraph);
                 return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
             } elseif ($course == 'undergrad') {
                 // $undergrad = $this->getUnderGradData();
-                $commonGraph = $this->commonGraphData('undergrad');
+                $commonGraph = $this->commonData('undergrad');
                 // return json_encode($undergrad);
                 return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
             } elseif ($course == 'gdpi') {
                 // $gdpi = $this->getGDPIData();
-                $commonGraph = $this->commonGraphData('gdpi');
+                $commonGraph = $this->commonData('gdpi');
                 // return json_encode($gdpi);
                 return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
             } elseif ($course == 'mocks') {
                 // $mocks = $this->getMocksData();
-                $commonGraph = $this->commonGraphData('mocks');
+                $commonGraph = $this->commonData('mocks');
                 // return json_encode($mocks);
                 return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
             } else {
@@ -96,8 +97,8 @@ class CEOController extends Controller
             $this->startDate = Carbon::now()->startOfWeek()->format('Y-m-d H:i:s');
             $this->endDate = Carbon::now()->endOfWeek()->format('Y-m-d H:i:s');
 
-            $this->lastStartDate = Carbon::now()->subYear()->startOfWeek()->format('Y-m-d H:i:s');
-            $this->lastEndDate = Carbon::now()->subYear()->endOfWeek()->format('Y-m-d H:i:s');
+            $this->lastStartDate = Carbon::now()->startOfWeek()->subYear()->format('Y-m-d H:i:s');
+            $this->lastEndDate = Carbon::now()->endOfWeek()->subYear()->format('Y-m-d H:i:s');
 
             $this->previousStartDate = Carbon::now()->subWeek()->startOfWeek()->format('Y-m-d H:i:s');
             $this->previousEndDate = Carbon::now()->subWeek()->endOfWeek()->format('Y-m-d H:i:s');
@@ -166,47 +167,59 @@ class CEOController extends Controller
 
     public function getRevenueData()
     {
-        $new_total_order_count = $new_total_revenue = $old_total_order_count = $old_total_revenue = $failed_order_repeat_purchase = $new_order_previous_revenue = $old_order_previous_revenue = 0;
-        $maxValue = null;
+        $failed_order_repeat_purchase = $perviousOrderCount = 0;
+        $failedOrderItemIDs = $data = $courses = $countData = $userIds = $complete_order = $orderIds = [];
 
-        $new_order_course_category = $old_order_course_category = $failedOrderItemIDs = $data = [];
         // This Year :: total No of enrollment start
-        $new_this_year_total = DB::table('orders')->selectRaw('COUNT(id) as count,SUM(total) as total_amount')->where('payment_status', 'completed')->whereBetween('created_at', [$this->startDate, $this->endDate])->first();
-        // return $old_this_year_total;
-        $old_this_year_total = DB::table('old_orders')->selectRaw('COUNT(id) as count,SUM(total_revenue) as total_amount')->whereBetween('order_date', [$this->startDate, $this->endDate])->first();
+        $new_order_today = DB::table('orders')
+            ->selectRaw('COUNT(orders.id) as count,SUM(orders.total) as total_amount')
+            ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.payment_status', 'completed')
+            ->whereBetween('orders.created_at', [$this->startDate, $this->endDate])
+            ->first();
 
-        $data['this_year_total_enrollments'] = $new_this_year_total->count + $old_this_year_total->count;
-        $data['this_year_total_revenue'] = (int) ($new_this_year_total->total_amount + $old_this_year_total->total_amount);
+        $old_order_today = DB::table('old_orders')->selectRaw('COUNT(id) as count,SUM(total_revenue) as total_amount')->whereBetween('order_date', [$this->startDate, $this->endDate])->first();
+
+        $data['this_year_total_enrollments'] = $new_order_today->count + $old_order_today->count;
+        $data['this_year_total_revenue'] = ($new_order_today->total_amount + $old_order_today->total_amount);
         // This Year :: total No of enrollment end
 
         // Last Year :: total No of enrollment start
-        $new_last_year_total = DB::table('orders')->selectRaw('COUNT(id) as count,SUM(total) as total_amount')->where('payment_status', 'completed')->whereBetween('created_at', [$this->lastStartDate, $this->lastEndDate])->first();
+        $new_last_year_total = DB::table('orders')
+            ->selectRaw('COUNT(orders.id) as count,SUM(orders.total) as total_amount')
+            ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.payment_status', 'completed')
+            ->whereBetween('orders.created_at', [$this->lastStartDate, $this->lastEndDate])
+            ->first();
+        // $new_last_year_total = DB::table('orders')->selectRaw('COUNT(id) as count,SUM(total) as total_amount')->where('payment_status', 'completed')->whereBetween('created_at', [$this->lastStartDate, $this->lastEndDate])->first();
 
         $old_last_year_total = DB::table('old_orders')->selectRaw('COUNT(id) as count,SUM(total_revenue) as total_amount')->whereBetween('order_date', [$this->lastStartDate, $this->lastEndDate])->first();
 
         $data['last_year_total_enrollments'] = $new_last_year_total->count + $old_last_year_total->count;
-        $lastYearTotalRevenue = (int) ($new_last_year_total->total_amount + $old_last_year_total->total_amount);
-        $data['last_year_total_revenue'] = $lastYearTotalRevenue != 0 ? $lastYearTotalRevenue : 1;
+        $data['last_year_total_revenue'] = (int) ($new_last_year_total->total_amount + $old_last_year_total->total_amount);
+        // $data['last_year_total_revenue'] = $lastYearTotalRevenue != 0 ? $lastYearTotalRevenue : 1;
         // Last Year :: total No of enrollment end
 
         // Enrollment Per start
-        $data['this_year_total_enrollments_per'] = number_format((($data['this_year_total_enrollments'] * 100) / ($data['this_year_total_enrollments'] + $data['last_year_total_enrollments'])), 2);
-        $data['last_year_total_enrollments_per'] = number_format((($data['last_year_total_enrollments'] * 100) / ($data['this_year_total_enrollments'] + $data['last_year_total_enrollments'])), 2);
-        $data['this_year_total_revenue_per'] = number_format((($data['this_year_total_revenue'] * 100) / ($data['this_year_total_revenue'] + $data['last_year_total_revenue'])), 2);
-        $data['last_year_total_revenue_per'] = number_format((($data['last_year_total_revenue'] * 100) / ($data['this_year_total_revenue'] + $data['last_year_total_revenue'])), 2);
-        $data['total_revenue_per'] = number_format(((($data['this_year_total_revenue'] - $data['last_year_total_revenue']) / $data['last_year_total_revenue']) * 100), 2);
+        $data['this_year_total_enrollments_per'] = perFindValue($data['this_year_total_enrollments'], $data['last_year_total_enrollments']);
+        $data['last_year_total_enrollments_per'] = perFindValue($data['last_year_total_enrollments'], $data['this_year_total_enrollments']);
+        $data['this_year_total_revenue_per'] = perFindValue($data['this_year_total_revenue'], $data['last_year_total_revenue']);
+        $data['last_year_total_revenue_per'] = perFindValue($data['last_year_total_revenue'], $data['this_year_total_revenue']);
+        $data['total_revenue_per'] = perFindAvg($data['this_year_total_revenue'], $data['last_year_total_revenue']);
         // Enrollment Per end
+        // return $data;
 
         // This Year :: enrollments through Installments & EMI start
         $new_this_year_emi_enrollments = DB::table('orders')
             ->selectRaw('COUNT(orders.id) as count,SUM(orders.total) as total_amount')
             ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->join('courses', 'courses.id', '=', 'order_items.course_id')
             ->whereBetween('orders.created_at', [$this->startDate, $this->endDate])
             ->where(function ($q) {
-                $q->where('order_items.name', 'like', '%installment%')
-                    ->orWhere('order_items.name', 'like', '%emi%');
+                $q->where('courses.name', 'like', '%installment%')
+                    ->orWhere('courses.name', 'like', '%emi%');
             })->where('orders.payment_status', 'completed')->first();
-
+        // return $new_this_year_emi_enrollments;
         $old_this_year_emi_enrollments = DB::table('old_orders')
             ->selectRaw('COUNT(id) as count,SUM(total_revenue) as total_amount')
             ->where(function ($q) {
@@ -221,10 +234,11 @@ class CEOController extends Controller
         $new_last_year_emi_enrollments = DB::table('orders')
             ->selectRaw('COUNT(orders.id) as count,SUM(orders.total) as total_amount')
             ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->join('courses', 'courses.id', '=', 'order_items.course_id')
             ->whereBetween('orders.created_at', [$this->lastStartDate, $this->lastEndDate])
             ->where(function ($q) {
-                $q->where('order_items.name', 'like', '%installment%')
-                    ->orWhere('order_items.name', 'like', '%emi%');
+                $q->where('courses.name', 'like', '%installment%')
+                    ->orWhere('courses.name', 'like', '%emi%');
             })->where('orders.payment_status', 'completed')->first();
 
         $old_last_year_emi_enrollments = DB::table('old_orders')
@@ -238,183 +252,150 @@ class CEOController extends Controller
         // Last Year :: enrollments through Installments & EMI end
 
         // Enrollment through Installments & EMI start
-        $totalEMIEnrollments = ($data['this_year_emi_enrollments'] + $data['last_year_emi_enrollments']);
-        $totalEMIRevenue = ($data['this_year_emi_revenue'] + $data['last_year_emi_revenue']);
-
-        $data['this_year_emi_enrollments_per'] = number_format((($data['this_year_emi_enrollments'] * 100) / ($totalEMIEnrollments > 0 ? $totalEMIEnrollments : 1)), 2);
-        $data['last_year_emi_enrollments_per'] = number_format((($data['last_year_emi_enrollments'] * 100) / ($totalEMIEnrollments > 0 ? $totalEMIEnrollments : 1)), 2);
-        $data['this_year_emi_revenue_per'] = number_format((($data['this_year_emi_revenue'] * 100) / ($totalEMIRevenue > 0 ? $totalEMIRevenue : 1)), 2);
-        $data['last_year_emi_revenue_per'] = number_format((($data['last_year_emi_revenue'] * 100) / ($totalEMIRevenue > 0 ? $totalEMIRevenue : 1)), 2);
-        $lastYearEMIRevenue = $data['last_year_emi_revenue'] != 0 ? $data['last_year_emi_revenue'] : 1;
-        $data['total_emi_revenue_per'] = number_format(((($data['this_year_emi_revenue'] - $lastYearEMIRevenue) / $lastYearEMIRevenue) * 100), 2);
+        $data['this_year_emi_enrollments_per'] = perFindValue($data['this_year_emi_enrollments'], $data['last_year_emi_enrollments']);
+        $data['last_year_emi_enrollments_per'] = perFindValue($data['last_year_emi_enrollments'], $data['this_year_emi_enrollments']);
+        $data['this_year_emi_revenue_per'] = perFindValue($data['this_year_emi_revenue'], $data['last_year_emi_revenue']);
+        $data['last_year_emi_revenue_per'] = perFindValue($data['last_year_emi_revenue'], $data['this_year_emi_revenue']);
+        $data['total_emi_revenue_per'] = perFindAvg($data['this_year_emi_revenue'], $data['last_year_emi_revenue']);
         // Enrollment through Installments & EMI end
 
         // Total No of enrollment Chart And Table start
+        $course_categories = DB::table('course_categories')->select('name', 'slug')->get();
+        foreach ($course_categories as $course) {
+            $countData['enrollment'][$course->slug] = 0;
+            $countData['today_day_total_revenue'][$course->slug] = 0;
+            $countData['previous_day_total_revenue'][$course->slug] = 0;
+            $courses[] = $course->name;
+        }
+
+        $data['course_name'] = $courses;
+
         $new_today_orders = DB::table('orders')
-            ->selectRaw('course_categories.name as course_category_name, count(orders.id) as order_count,sum(orders.total) as total_revenue')
+            ->selectRaw('course_categories.slug as course_category_slug, count(orders.id) as order_count,sum(orders.total) as total_revenue')
             ->join('order_items', 'order_items.order_id', '=', 'orders.id')
             ->join('courses', 'courses.id', '=', 'order_items.course_id')
             ->join('course_categories', 'course_categories.id', '=', 'courses.category_ids')
             ->whereBetween('orders.created_at', [$this->startDate, $this->endDate])
             ->where('orders.payment_status', 'completed')
-            ->groupBy('course_categories.name')
+            ->groupBy('course_categories.slug')
             ->orderByDesc('order_count')
             ->get();
 
         $old_today_orders = DB::table('old_orders')
-            ->selectRaw('course_categories.name as course_category_name, count(old_orders.id) as order_count,sum(old_orders.total_revenue) as total_revenue')
+            ->selectRaw('course_categories.slug as course_category_slug, count(old_orders.id) as order_count,sum(old_orders.total_revenue) as total_revenue')
             ->join('courses', 'courses.name', '=', 'old_orders.name')
             ->join('course_categories', 'course_categories.id', '=', 'courses.category_ids')
             ->whereBetween('old_orders.order_date', [$this->startDate, $this->endDate])
-            ->groupBy('course_categories.name')
+            ->groupBy('course_categories.slug')
             ->orderByDesc('order_count')
             ->get();
-
+        // return $old_today_orders;
         $new_previous_orders = DB::table('orders')
-            ->selectRaw('course_categories.name as course_category_name, sum(orders.total) as total_revenue')
+            ->selectRaw('course_categories.slug as course_category_slug, count(orders.id) as order_count,sum(orders.total) as total_revenue')
             ->join('order_items', 'order_items.order_id', '=', 'orders.id')
             ->join('courses', 'courses.id', '=', 'order_items.course_id')
             ->join('course_categories', 'course_categories.id', '=', 'courses.category_ids')
             ->whereBetween('orders.created_at', [$this->previousStartDate, $this->previousEndDate])
             ->where('orders.payment_status', 'completed')
-            ->groupBy('course_categories.name')
-            ->pluck('total_revenue', 'course_category_name')->toArray();
+            ->groupBy('course_categories.slug')
+        // ->pluck('total_revenue', 'course_category_slug')
+        // ->toArray();
+            ->get();
 
         $old_previous_orders = DB::table('old_orders')
-            ->selectRaw('course_categories.name as course_category_name,sum(old_orders.total_revenue) as total_revenue')
+            ->selectRaw('course_categories.slug as course_category_slug,count(old_orders.id) as order_count,sum(old_orders.total_revenue) as total_revenue')
             ->join('courses', 'courses.name', '=', 'old_orders.name')
             ->join('course_categories', 'course_categories.id', '=', 'courses.category_ids')
             ->whereBetween('old_orders.order_date', [$this->previousStartDate, $this->previousStartDate])
-            ->groupBy('course_categories.name')
-            ->pluck('total_revenue', 'course_category_name')->toArray();
+            ->groupBy('course_categories.slug')
+        // ->pluck('total_revenue', 'course_category_slug')->toArray();
+            ->get();
 
         foreach ($new_today_orders as $order) {
-            $new_total_order_count += $order->order_count;
-            $new_total_revenue += $order->total_revenue;
-            $new_order_course_category['enrollment'][$order->course_category_name] = $order->order_count;
-            $new_order_course_category['total_revenue'][$order->course_category_name] = $order->total_revenue;
+            $countData['enrollment'][$order->course_category_slug] += $order->order_count;
+            $countData['today_day_total_revenue'][$order->course_category_slug] += $order->total_revenue;
         }
-
+        // return $new_today_orders;
         foreach ($old_today_orders as $order) {
-            $old_total_order_count += $order->order_count;
-            $old_total_revenue += $order->total_revenue;
-            $old_order_course_category['enrollment'][$order->course_category_name] = $order->order_count;
-            $old_order_course_category['total_revenue'][$order->course_category_name] = $order->total_revenue;
+            $countData['enrollment'][$order->course_category_slug] += $order->order_count;
+            $countData['today_day_total_revenue'][$order->course_category_slug] += $order->total_revenue;
+        }
+        // return $new_previous_orders;
+        foreach ($new_previous_orders as $order) {
+            $perviousOrderCount += $order->order_count;
+            $countData['previous_day_total_revenue'][$order->course_category_slug] += $order->total_revenue;
         }
 
-        foreach ($new_previous_orders as $pervious) {
-            $new_order_previous_revenue += $pervious;
+        foreach ($old_previous_orders as $order) {
+            $perviousOrderCount += $order->order_count;
+            $countData['previous_day_total_revenue'][$order->course_category_slug] += $order->total_revenue;
         }
 
-        foreach ($old_previous_orders as $pervious) {
-            $old_order_previous_revenue += $pervious;
+        //revenue chart start
+        $data['today_revenue'] = array_values($countData['today_day_total_revenue']);
+        $data['previous_day_revenue'] = array_values($countData['previous_day_total_revenue']);
+        $todayTotalRevenue = array_sum($data['today_revenue']);
+        $data['total_today_revenue'] = numberFormat($todayTotalRevenue);
+        $data['total_per_revenue'] = perFindAvg($todayTotalRevenue, array_sum($data['previous_day_revenue']));
+        //revenue chart end
+
+        //pie chart start
+        $totalOrderCount = array_sum($countData['enrollment']);
+        $data['enrollment_per_avg'] = perFindAvg($totalOrderCount, $perviousOrderCount);
+        foreach ($countData['enrollment'] as $key => $order) {
+            $countData['enrollment_per'][$key] = $countData['enrollment'][$key] != 0 ? round(($countData['enrollment'][$key] / $totalOrderCount * 100), 2) : 0;
         }
-
-        $total_order_count = ($new_total_order_count + $old_total_order_count);
-        $total_order_count = isset($total_order_count) ? $total_order_count : 1;
-
-        $data['total_revenue']['sum'] = $new_total_revenue + $old_total_revenue;
-        $orderPreviousRevenue = $new_order_previous_revenue + $old_order_previous_revenue;
-        $totalRevenuePer = min(($data['total_revenue']['sum'] - $orderPreviousRevenue) / ($orderPreviousRevenue > 0 ? $orderPreviousRevenue : 1) * 100, 100);
-        $data['total_revenue']['per'] = number_format($totalRevenuePer, 2);
-
-        // total No of enrollment enrollment pie chart start
-        $enrollment_CAT = ((isset($new_order_course_category['enrollment']['CAT']) ? $new_order_course_category['enrollment']['CAT'] : 0)
-             + (isset($old_order_course_category['enrollment']['CAT']) ? $old_order_course_category['enrollment']['CAT'] : 0));
-        $data['enrollment']['CAT'] = $enrollment_CAT != 0 ? number_format(($enrollment_CAT / $total_order_count * 100), 2) : 0;
-
-        $enrollment_GDPI = ((isset($new_order_course_category['enrollment']['GDPI']) ? $new_order_course_category['enrollment']['GDPI'] : 0)
-             + (isset($old_order_course_category['enrollment']['GDPI']) ? $old_order_course_category['enrollment']['GDPI'] : 0));
-        $data['enrollment']['GDPI'] = $enrollment_GDPI != 0 ? number_format(($enrollment_GDPI / $total_order_count * 100), 2) : 0;
-
-        $enrollment_Mocks = ((isset($new_order_course_category['enrollment']['Mocks']) ? $new_order_course_category['enrollment']['Mocks'] : 0)
-             + (isset($old_order_course_category['enrollment']['Mocks']) ? $old_order_course_category['enrollment']['Mocks'] : 0));
-        $data['enrollment']['Mocks'] = $enrollment_Mocks != 0 ? number_format(($enrollment_Mocks / $total_order_count * 100), 2) : 0;
-
-        $enrollment_Non_CAT = ((isset($new_order_course_category['enrollment']['Non-CAT']) ? $new_order_course_category['enrollment']['Non-CAT'] : 0) + (isset($old_order_course_category['enrollment']['Non-CAT']) ? $old_order_course_category['enrollment']['Non-CAT'] : 0));
-        $data['enrollment']['Non-CAT'] = $enrollment_Non_CAT != 0 ? number_format(($enrollment_Non_CAT / $total_order_count * 100), 2) : 0;
-
-        $enrollment_Study_Abroad = ((isset($new_order_course_category['enrollment']['Study Abroad']) ? $new_order_course_category['enrollment']['Study Abroad'] : 0) + (isset($old_order_course_category['enrollment']['Study Abroad']) ? $old_order_course_category['enrollment']['Study Abroad'] : 0));
-        $data['enrollment']['Study Abroad'] = $enrollment_Study_Abroad != 0 ? number_format(($enrollment_Study_Abroad / $total_order_count * 100), 2) : 0;
-
-        $enrollment_UnderGrad = ((isset($new_order_course_category['enrollment']['UnderGrad']) ? $new_order_course_category['enrollment']['UnderGrad'] : 0) + (isset($old_order_course_category['enrollment']['UnderGrad']) ? $old_order_course_category['enrollment']['UnderGrad'] : 0));
-        $data['enrollment']['UnderGrad'] = $enrollment_UnderGrad != 0 ? number_format(($enrollment_UnderGrad / $total_order_count * 100), 2) : 0;
-
-        foreach ($data['enrollment'] as $key => $value) {
-            if ($maxValue === null || $value > $maxValue) {
-                $maxValue = $value;
-            }
-        }
-        $data['enrollment']['maxValue'] = $maxValue;
-        // total No of enrollment enrollment pie chart end
-
-        // this day total revenue start
-        $data['today_day_total_revenue']['CAT'] = (int) ((isset($new_order_course_category['total_revenue']['CAT']) ? $new_order_course_category['total_revenue']['CAT'] : 0)
-             + (isset($old_order_course_category['total_revenue']['CAT']) ? $old_order_course_category['total_revenue']['CAT'] : 0));
-
-        $data['today_day_total_revenue']['GDPI'] = (int) ((isset($new_order_course_category['total_revenue']['GDPI']) ? $new_order_course_category['total_revenue']['GDPI'] : 0)
-             + (isset($old_order_course_category['total_revenue']['GDPI']) ? $old_order_course_category['total_revenue']['GDPI'] : 0));
-
-        $data['today_day_total_revenue']['Mocks'] = (int) ((isset($new_order_course_category['total_revenue']['Mocks']) ? $new_order_course_category['total_revenue']['Mocks'] : 0) + (isset($old_order_course_category['total_revenue']['Mocks']) ? $old_order_course_category['total_revenue']['Mocks'] : 0));
-
-        $data['today_day_total_revenue']['Non-CAT'] = (int) ((isset($new_order_course_category['total_revenue']['Non-CAT']) ? $new_order_course_category['total_revenue']['Non-CAT'] : 0) + (isset($old_order_course_category['total_revenue']['Non-CAT']) ? $old_order_course_category['total_revenue']['Non-CAT'] : 0));
-
-        $data['today_day_total_revenue']['Study Abroad'] = (int) ((isset($new_order_course_category['total_revenue']['Study Abroad']) ? $new_order_course_category['total_revenue']['Study Abroad'] : 0) + (isset($old_order_course_category['total_revenue']['Study Abroad']) ? $old_order_course_category['total_revenue']['Study Abroad'] : 0));
-
-        $data['today_day_total_revenue']['UnderGrad'] = (int) ((isset($new_order_course_category['total_revenue']['UnderGrad']) ? $new_order_course_category['total_revenue']['UnderGrad'] : 0) + (isset($old_order_course_category['total_revenue']['UnderGrad']) ? $old_order_course_category['total_revenue']['UnderGrad'] : 0));
-        // this day total revenue end
-
-        // previous day total revenue start
-        $data['previous_day_total_revenue']['CAT'] = (int) ((isset($new_previous_orders['CAT']) ? $new_previous_orders['CAT'] : 0) + (isset($old_previous_orders['CAT']) ? $old_previous_orders['CAT'] : 0));
-
-        $data['previous_day_total_revenue']['GDPI'] = (int) ((isset($new_previous_orders['GDPI']) ? $new_previous_orders['GDPI'] : 0) + (isset($old_previous_orders['GDPI']) ? $old_previous_orders['GDPI'] : 0));
-
-        $data['previous_day_total_revenue']['Mocks'] = (int) ((isset($new_previous_orders['Mocks']) ? $new_previous_orders['Mocks'] : 0) + (isset($old_previous_orders['Mocks']) ? $old_previous_orders['Mocks'] : 0));
-
-        $data['previous_day_total_revenue']['Non-CAT'] = (int) ((isset($new_previous_orders['Non-CAT']) ? $new_previous_orders['Non-CAT'] : 0) + (isset($old_previous_orders['Non-CAT']) ? $old_previous_orders['Non-CAT'] : 0));
-
-        $data['previous_day_total_revenue']['Study Abroad'] = (int) ((isset($new_previous_orders['Study Abroad']) ? $new_previous_orders['Study Abroad'] : 0) + (isset($old_previous_orders['Study Abroad']) ? $old_previous_orders['Study Abroad'] : 0));
-
-        $data['previous_day_total_revenue']['UnderGrad'] = (int) ((isset($new_previous_orders['UnderGrad']) ? $new_previous_orders['UnderGrad'] : 0) + (isset($old_previous_orders['UnderGrad']) ? $old_previous_orders['UnderGrad'] : 0));
-        // previous day total revenue end
+        $data['enrollment_max'] = max(array_values($countData['enrollment_per']));
+        $data['enrollment_per'] = $countData['enrollment_per'];
+        $data['leads'] = $countData['enrollment'];
+        //pie chart end
+        // Total No of enrollment Chart And Table end
 
         // Failed Order List Start
-        $failed_order = DB::table('orders')
+        $failed_order_user = DB::table('orders')
             ->selectRaw('orders.id as order_id,orders.user_id as user_id, order_items.course_id as course_id,order_items.id as order_item_id')
             ->join('order_items', 'order_items.order_id', '=', 'orders.id')
             ->whereBetween('orders.created_at', ["$this->startDate", "$this->endDate"])
             ->whereIn('orders.payment_status', ['timeout', 'failed'])
+        // ->groupBy('orders.user_id', 'order_items.course_id')
             ->get();
+        // ->pluck('orders.user_id')->toArray();
 
-        foreach ($failed_order as $order) {
-            $orderDetail = DB::table('orders')
-                ->join('order_items', 'order_items.order_id', '=', 'orders.id')
-                ->where('orders.payment_status', 'completed')
-                ->where('order_items.course_id', $order->course_id)
-                ->where('order_items.user_id', $order->user_id)
-                ->first();
-            if (!$orderDetail) {
-                if (!in_array($order->order_item_id, $failedOrderItemIDs)) {
-                    array_push($failedOrderItemIDs, $order->order_item_id);
-                }
-            } else {
-                ++$failed_order_repeat_purchase;
+        foreach ($failed_order_user as $order) {
+            $userIds[] = $order->user_id;
+        }
+        $complete_order = DB::table('orders')
+            ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.payment_status', 'completed')
+        // ->whereBetween('orders.created_at', ["$this->startDate","$this->currentDate"])
+            ->whereIn('orders.user_id', $userIds)
+        // ->groupBy('orders.user_id')
+        // ->get();
+            ->pluck('order_items.course_id', 'orders.id')->toArray();
+
+        foreach ($failed_order_user as $order) {
+            if (!isset($complete_order[$order->order_id])) {
+                $orderIds[] = $order->order_id;
             }
         }
-        $data['failed_order_repeat_purchase'] = $failed_order_repeat_purchase;
-        $data['failed_order_dont_purchase'] = count($failedOrderItemIDs);
+
+        $data['failed_order_repeat_purchase'] = (count($failed_order_user) - count($orderIds));
+        $data['failed_order_dont_purchase'] = count($orderIds);
+
         $data['failed_order_list'] = DB::table('orders')
         // ->selectRaw('orders.id as order_id,users.id as user_id,users.name as name,users.email as email,users.phone_number as phone_number')
             ->selectRaw('orders.id as order_id,orders.bd_name as name,orders.bd_email as email,orders.bd_phone_number as phone_number,order_items.name as course_name')
             ->join('order_items', 'order_items.order_id', '=', 'orders.id')
         // ->join('users', 'users.id', '=', 'orders.user_id')
         // ->join('courses', 'courses.id', '=', 'order_items.course_id')
-            ->whereIn('order_items.id', $failedOrderItemIDs)
+            ->whereIn('order_items.id', $orderIds)
             ->orderByDesc('orders.created_at')
             ->get();
-        // Failed Order List End
+        // // Failed Order List End
+
         return $data;
     }
+
     public function getNewTodayCatCourses($id)
     {
         return DB::table('courses')
@@ -473,7 +454,7 @@ class CEOController extends Controller
             ->get();
     }
 
-    public function commonGraphData($slug = null)
+    public function commonData($slug = null)
     {
         $data = $courseData = [];
         if ($slug) {
@@ -524,19 +505,110 @@ class CEOController extends Controller
                 $courseData['lastDay_enrollment'] = array_values($data['lastDay_enrollment']);
                 $courseData['lastDay_revenue'] = array_values($data['lastDay_revenue']);
 
-                $courseData['total_today_enrollment'] = array_sum($courseData['today_enrollment']);
-                $courseData['total_today_revenue'] = array_sum($courseData['today_revenue']);
+                $today_enrollment = array_sum($courseData['today_enrollment']);
+                $today_revenue = array_sum($courseData['today_revenue']);
                 $lastDay_enrollment = array_sum($courseData['lastDay_enrollment']);
                 $lastDay_revenue = array_sum($courseData['lastDay_revenue']);
 
-                $courseData['per_today_enrollment'] = round(min(($courseData['total_today_enrollment'] - $lastDay_enrollment) / ($lastDay_enrollment > 0 ? $lastDay_enrollment : 1) * 100, 100), 2);
+                // $courseDataTodayEnrollment = array_values($data['today_enrollment']);
+                // $courseDataTodayRevenue = array_values($data['today_revenue']);
+                // $courseDataLastDayEnrollment = array_values($data['lastDay_enrollment']);
+                // $courseDataLastDayRevenue = array_values($data['lastDay_revenue']);
 
-                $courseData['per_today_revenue'] = round(min(($courseData['total_today_revenue'] - $lastDay_revenue) / ($lastDay_revenue > 0 ? $lastDay_revenue : 1) * 100, 100), 2);
+                // $today_enrollment = array_sum($courseDataTodayEnrollment);
+                // $today_revenue = array_sum($courseDataTodayRevenue);
+                // $lastDay_enrollment = array_sum($courseDataLastDayEnrollment);
+                // $lastDay_revenue = array_sum($courseDataLastDayRevenue);
+
+                // $courseData['today_enrollment'] = arrNumberFormat($courseDataTodayEnrollment);
+                // $courseData['today_revenue'] = arrNumberFormat($courseDataTodayRevenue);
+                // $courseData['lastDay_enrollment'] = arrNumberFormat($courseDataLastDayEnrollment);
+                // $courseData['lastDay_revenue'] = arrNumberFormat($courseDataLastDayRevenue);
+
+                $courseData['total_today_enrollment'] = numberFormat($today_enrollment);
+                $courseData['total_today_revenue'] = numberFormat($today_revenue);
+
+                $courseData['per_today_enrollment'] = round(min(($today_enrollment - $lastDay_enrollment) / ($lastDay_enrollment > 0 ? $lastDay_enrollment : 1) * 100, 100), 2);
+
+                $courseData['per_today_revenue'] = round(min(($today_revenue - $lastDay_revenue) / ($lastDay_revenue > 0 ? $lastDay_revenue : 1) * 100, 100), 2);
 
                 return $courseData;
             }
             return "Categories not found";
         }
         return 'Data Not Found';
+    }
+
+    public function revenueModel(Request $request)
+    {
+        $date = isset($request->date) ? $request->date : null;
+        if ($date != 'custom') {
+            $this->getStartEndDate($date);
+        } else {
+            $startDate = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+            $endDate = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+            $daysDifference = $endDate->diffInDays($startDate) + 1;
+
+            $this->startDate = $startDate->format('Y-m-d H:i:s');
+            $this->endDate = $endDate->format('Y-m-d H:i:s');
+
+            $this->lastStartDate = $startDate->subYear()->format('Y-m-d H:i:s');
+            $this->lastEndDate = $endDate->subYear()->format('Y-m-d H:i:s');
+
+            $startDate = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+            $endDate = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+            $this->previousStartDate = $startDate->subDay($daysDifference)->format('Y-m-d H:i:s');
+            $this->previousEndDate = $endDate->subDay($daysDifference)->format('Y-m-d H:i:s');
+        }
+        return view('Admin.CeoRevenue.revenueModel', ['startDate' => $this->startDate, 'endDate' => $this->endDate]);
+    }
+
+    public function getData(Request $request)
+    {
+        $userIds = $orderIds = [];
+        $startDate = isset($request->startDate) ? $request->startDate : Carbon::now()->format('Y-m-d H:i:s');
+        $endDate = isset($request->endDate) ? $request->endDate : Carbon::now()->format('Y-m-d H:i:s');
+
+        $failed_order_user = DB::table('orders')
+            ->selectRaw('orders.id as order_id,orders.user_id as user_id, order_items.course_id as course_id,order_items.id as order_item_id')
+            ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->whereBetween('orders.created_at', ["$startDate", "$endDate"])
+            ->whereIn('orders.payment_status', ['timeout', 'failed'])
+        // ->groupBy('orders.user_id', 'order_items.course_id')
+            ->get();
+        // ->pluck('orders.user_id')->toArray();
+
+        foreach ($failed_order_user as $order) {
+            $userIds[] = $order->user_id;
+        }
+
+        $complete_order = DB::table('orders')
+            ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.payment_status', 'completed')
+        // ->whereBetween('orders.created_at', ["$this->startDate","$this->currentDate"])
+            ->whereIn('orders.user_id', $userIds)
+            ->pluck('order_items.course_id', 'orders.id')->toArray();
+
+        foreach ($failed_order_user as $order) {
+            if (!isset($complete_order[$order->order_id])) {
+                $orderIds[] = $order->order_id;
+            }
+        }
+
+        $data = DB::table('orders')
+            ->selectRaw('orders.id as order_id,orders.bd_name as name,orders.bd_email as email,orders.bd_phone_number as phone_number,order_items.name as course_name')
+            ->join('order_items', 'order_items.order_id', '=', 'orders.id')
+            ->whereIn('order_items.id', $orderIds)
+            ->orderByDesc('orders.created_at');
+
+        return DataTables::of($data)
+            ->editColumn('name', function ($data) {
+                $name = "<p class='d-flex align-items-center'><img src='https://ui-avatars.com/api/?background=random&color=random&name=" . $data->name . "&size=512&rounded=true&format=svg' class='rounded-pill w-32px'> <span class='ms-1'>" . $data->name . "</span></p>";
+                return $name;
+            })
+            ->rawColumns(['name'])
+            ->addIndexColumn()
+            ->toJson();
     }
 }
