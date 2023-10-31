@@ -31,56 +31,66 @@
         <div class="sidebar-section">
             <ul class="nav nav-sidebar" data-nav-type="accordion">
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'ceo-revenue' ? 'active' : '' }}">
-                        <i class="ph-layout"></i>
-                        <span>Ceo Revenue</span>
+                    <a href="{{ route('ceo-revenue') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'ceo-revenue' ? 'active' : '' }}">
+                        <i class="fas fa-money-bill-alt"></i>
+                        <span>CEO Revenue</span>
                     </a>
                 </li>
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'student' ? 'active' : '' }}">
-                        <i class="ph-swatches"></i>
+                    <a href="{{ route('student-profile') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'student-profile' ? 'active' : '' }}">
+                        <i class="fas fa-users"></i>
                         <span>Student Profile</span>
                     </a>
                 </li>
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'exam' ? 'active' : '' }}">
-                        <i class="ph-note-blank"></i>
+                    <a href="{{ route('exam-toppers') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'exam-toppers' ? 'active' : '' }}">
+                        <i class="fas fa-graduation-cap"></i>
                         <span>Exam Toppers</span>
                     </a>
                 </li>
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'mentors' ? 'active' : '' }}">
-                        <i class="ph-list-numbers"></i>
+                    <a href="{{ route('mentors-interView') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'mentors-interView' ? 'active' : '' }}">
+                        <i class="fas fa-clipboard-list"></i>
                         <span>Mentors/ Interview</span>
                     </a>
                 </li>
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'faculty' ? 'active' : '' }}">
-                        <i class="ph-dots-three"></i>
+                    <a href="{{ route('faculty-session') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'faculty-session' ? 'active' : '' }}">
+                        <i class="fas fa-chalkboard-teacher"></i>
                         <span>Faculty & Session</span>
                     </a>
                 </li>
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'finance' ? 'active' : '' }}">
-                        <i class="ph-columns"></i>
+                    <a href="{{ route('finance') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'finance' ? 'active' : '' }}">
+                        <i class="fas fa-coins"></i>
                         <span>Finance</span>
                     </a>
                 </li>
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'marketing' ? 'active' : '' }}">
-                        <i class="ph-rows"></i>
+                    <a href="{{ route('marketing') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'marketing' ? 'active' : '' }}">
+                        {{--  <i class="ph-rows"></i>  --}}
+                        <i class="ph-megaphone "></i>
                         <span>Marketing</span>
                     </a>
                 </li>
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'forum' ? 'active' : '' }}">
-                        <i class="ph-arrow-fat-lines-down"></i>
+                    <a href="{{ route('forum') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'forum' ? 'active' : '' }}">
+                        <i class="fab fa-forumbee"></i>
                         <span>Forum</span>
                     </a>
                 </li>
                 <li class="nav-item py-2">
-                    <a href="#" class="nav-link {{ Route::currentRouteName() == 'catking' ? 'active' : '' }}">
-                        <i class="ph-arrow-fat-lines-right"></i>
+                    <a href="{{ route('CATKingOne') }}"
+                        class="nav-link {{ Route::currentRouteName() == 'CATKingOne' ? 'active' : '' }}">
+                        <i class="fas fa-clone"></i>
                         <span>CATKing One</span>
                     </a>
                 </li>

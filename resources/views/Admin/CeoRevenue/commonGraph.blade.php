@@ -575,7 +575,7 @@
             <div class="card-header d-flex align-items-center">
                 <h5 class="fw-semibold mb-0">Total revenue</h5>
                 @if ($commonGraph['total_today_revenue'] != 0)
-                    <span class="mx-3 bg-primary-2 rounded p-1">{{ $commonGraph['total_today_revenue'] }}</span>
+                    <span class="badge bg-primary rounded-pill mx-2">{{ $commonGraph['total_today_revenue'] }}</span>
                 @endif
                 @if ($commonGraph['per_today_revenue'] > 0)
                     <span class="text-success ms-2">{{ $commonGraph['per_today_revenue'] }}% <i
@@ -607,7 +607,8 @@
             <div class="card-header d-flex align-items-center">
                 <h5 class="fw-semibold mb-0">No of enrollment</h5>
                 @if ($commonGraph['total_today_enrollment'] != 0)
-                    <span class="mx-3 bg-enrollment-3 rounded p-1">{{ $commonGraph['total_today_enrollment'] }}</span>
+                    {{--  <span class="mx-3 bg-enrollment-3 rounded p-1">{{ $commonGraph['total_today_enrollment'] }}</span>  --}}
+                    <span class="badge bg-enrollment rounded-pill mx-2">{{ $commonGraph['total_today_enrollment'] }}</span>
                 @endif
                 @if ($commonGraph['per_today_enrollment'] > 0)
                     <span class="text-success ms-2">{{ $commonGraph['per_today_enrollment'] }}% <i
@@ -616,7 +617,7 @@
                     <span class="text-danger ms-2">{{ $commonGraph['per_today_enrollment'] }}% <i
                             class="ph-trend-down me-2"></i></span>
                     {{--  @else
-                    <span class="text-info ms-2">0.00%</span>  --}}
+                    <span class="text-info">0.00%</span>  --}}
                 @endif
                 <div class="ms-auto ">
                     <div class="d-flex align-items-center text-muted fs-sm">

@@ -23,6 +23,8 @@
 
             function ceoRevenue(dateData, courseData, startDate = null, endDate = null) {
                 $('.dashboardContent').html('');
+                // $('.tooltip').css('display','none');
+                $('.tooltip').remove();
                 $("#loader").removeClass('d-none');
                 $.ajax({
                     url: "{{ route('ceo-revenue') }}",
@@ -65,6 +67,7 @@
                 );
             }
             _componentDaterange();
+
         });
     </script>
 @endpush

@@ -17,7 +17,7 @@
             @include('Admin.Partials.navbar')
             <!-- /main navbar -->
 
-            <div class="content-inner">
+            <div class="content-inner mb-4">
                 <!-- Content area -->
                 @yield('content')
                 <!-- /content area -->
@@ -34,10 +34,7 @@
                         var selectedCourse = $('input[name="course"]:checked').val();
                         var startDate = $('#startDate').val();
                         var endDate = $('#endDate').val();
-                        {{--  console.log(selectedDate,'selectedDate');
-                        console.log(selectedCourse,'selectedCourse');
-                        console.log(startDate,'startDate');
-                        console.log(endDate,'endDate');  --}}
+
                         var link = $(this).attr("href");
                         $("#myModal").html(tmp_html);
                         $('#myModal').modal('show');
@@ -57,8 +54,8 @@
                         });
                     });
                 </script>
-                @include('Admin.Partials.footer')
             </div>
+            @include('Admin.Partials.footer')
         </div>
         <!-- /main content -->
     </div>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CEOController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -29,9 +30,28 @@ Route::get('/clear-cache', function () {
 // });
 
 Route::middleware('auth')->group(function () {
+    //ceo revenue start
     Route::get('ceo-revenue', [CEOController::class, 'index'])->name('ceo-revenue');
     Route::get('ceo-revenue-model', [CEOController::class, 'revenueModel'])->name('ceo-revenue-model');
     Route::post('ceo-revenue-getData', [CEOController::class, 'getData'])->name('ceo-revenue-getData');
+    Route::post('ceo-sales-getData', [CEOController::class, 'perAgentConversion'])->name('ceo-sales-getData');
+    //ceo revenue end
+
+    Route::get('student-profile', [HomeController::class, 'studentProfile'])->name('student-profile');
+
+    Route::get('exam-toppers', [HomeController::class, 'examToppers'])->name('exam-toppers');
+
+    Route::get('mentors-interView', [HomeController::class, 'mentorsInterView'])->name('mentors-interView');
+
+    Route::get('faculty-session', [HomeController::class, 'facultySession'])->name('faculty-session');
+
+    Route::get('finance', [HomeController::class, 'finance'])->name('finance');
+
+    Route::get('marketing', [HomeController::class, 'marketing'])->name('marketing');
+
+    Route::get('forum', [HomeController::class, 'forum'])->name('forum');
+
+    Route::get('CATKingOne', [HomeController::class, 'CATKingOne'])->name('CATKingOne');
 });
 
 // Auth::routes();

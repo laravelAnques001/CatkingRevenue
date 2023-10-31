@@ -3,7 +3,12 @@
     $todayRevenue = json_encode($revenue['today_revenue']);
     $previousDayRevenue = json_encode($revenue['previous_day_revenue']);
 @endphp
-
+<style>
+    .tooltip {
+        position: relative;
+        float: right;
+    }
+</style>
 <script>
     $(document).ready(function() {
         const courseArr = <?= $courseArr ?>;
@@ -83,9 +88,9 @@
                                 }
                             },
                             formatter: function(params) {
-                                var tooltip = '' + params[0]
-                                    .name;
-                                var oldValue = params[0].value > 0 ? params[0].value : 1;
+                                var tooltip = '' + (params[0].name);
+                                var oldValue = (params[0].value) > 0 ? (params[0].value) :
+                                    1;
                                 var per = (params[1].value - oldValue) / oldValue *
                                     100;
                                 var percantage = params[0].value != 0 ? per.toFixed(2) : (
@@ -123,8 +128,8 @@
                             },
                             axisLine: {
                                 lineStyle: {
-                                    color: 'var(--gray-500)',
-                                },
+                                    color: 'var(--gray-500)'
+                                }
                             },
                             splitLine: {
                                 show: true,
@@ -139,7 +144,7 @@
                         yAxis: [{
                             type: 'value',
                             axisLabel: {
-                                color: 'rgba(var(--body-color-rgb), .65)',
+                                color: 'rgba(var(--body-color-rgb), 0.65)',
                             },
                             axisLine: {
                                 show: true,
@@ -297,63 +302,49 @@
                                 'rgba(var(--enrollment-rgb), 0.8',
                                 'rgba(var(--enrollment-rgb), 0.7',
                                 'rgba(var(--enrollment-rgb), 0.6',
-                                'rgba(var(--enrollment-rgb), 0.5'
+                                'rgba(var(--enrollment-rgb), 0.5',
+                                'rgba(var(--enrollment-rgb), 0.4'
                             ]
                         },
                         data: {
                             columns: [
-                                ['CAT', "{{ $revenue['enrollment_per']['cat'] }}"],
-                                ['Non-CAT', "{{ $revenue['enrollment_per']['non-cat'] }}"],
+                                ['CAT', "{{ $revenue['total_no_enrollment']['cat'] }}"],
+                                ['Non-CAT',
+                                    "{{ $revenue['total_no_enrollment']['non-cat'] }}"
+                                ],
                                 ['Study Abroad',
-                                    "{{ $revenue['enrollment_per']['study-abroad'] }}"
+                                    "{{ $revenue['total_no_enrollment']['study-abroad'] }}"
                                 ],
                                 ['UnderGrad',
-                                    "{{ $revenue['enrollment_per']['undergrad'] }}"
+                                    "{{ $revenue['total_no_enrollment']['undergrad'] }}"
                                 ],
-                                ['GDPI', "{{ $revenue['enrollment_per']['gdpi'] }}"],
-                                ['Mocks', "{{ $revenue['enrollment_per']['mocks'] }}"],
+                                ['GDPI', "{{ $revenue['total_no_enrollment']['gdpi'] }}"],
+                                ['Mocks', "{{ $revenue['total_no_enrollment']['mocks'] }}"],
+                                ['Old Order',
+                                    "{{ $revenue['total_no_enrollment']['old_order'] }}"
+                                ],
                             ],
                             type: 'donut'
                         },
                         donut: {
-                            title: "Total Enrollment 100"
+                            title: "Total Enrollment {{ $revenue['total_no_enrollment_sum'] }}",
                         }
                     });
-
-                    // Change data
-                    {{--  setTimeout(function() {
-                        donut_chart.load({
-                            columns: [
-                                ["CAT",
-                                    "{{ $revenue['enrollment']['cat'] }}"
-                                ],
-                                ["Non-CAT",
-                                    "{{ $revenue['enrollment']['non-cat'] }}"
-                                ],
-                                ["Study Abroad",
-                                    "{{ $revenue['enrollment']['study-abroad'] }}"
-                                ],
-                                ["UnderGrad",
-                                    "{{ $revenue['enrollment']['undergrad'] }}"
-                                ],
-                                ["GDPI",
-                                    "{{ $revenue['enrollment']['gdpi'] }}"
-                                ],
-                                ["Mocks",
-                                    "{{ $revenue['enrollment']['mocks'] }}"
-                                ],
-                            ]
-                        });
-                    }, 1000);  --}}
-
+                    {{--  d3.select('#c3_donut_chart')
+                    .append('div')
+                    .attr('class', 'chart-subtitle')
+                    .text('500');  --}}
                 }
             };
             return {
                 init: function() {
                     _columnsBasicLightExample();
+                    $('.c3-chart-arcs-title').after(
+                        '<p style="text-anchor: middle; opacity: 1;">50000</p>');
                 }
             }
         }();
+
 
         EchartsColumnsBasicLight.init();
         barsPiesExamples.init();
@@ -372,8 +363,20 @@
         // };
         // _componentTooltipCustomColor();
 
+        // enrollment show progress bar start
+        {{--  $('.popOvertop').tooltip('show');
+        $('.tooltip-inner').addClass('shadow');
+        $('.tooltip-arrow').addClass('d-none');
+
+         $(".progress-bar").each(function() {
+             each_bar_width = $(this).attr('aria-valuenow');
+             $(this).width(each_bar_width + '%');
+         });  --}}
+        // enrollment show progress bar end
+
     });
 </script>
+
 <div class="row">
     <div class="col-lg-6">
         <div class="card">
@@ -387,13 +390,26 @@
                 </div>
             </div>
             <div class="card-body pt-0">
-                <p class="mb-3">Total no of enrollment</p>
+                <p class="mb-3">Total no of enrollment
+                    @if ($revenue['total_enrollments_per'] > 0)
+                        <span class="text-success ms-2">{{ $revenue['total_enrollments_per'] }}% <i
+                                class="ph-trend-up me-2"></i></span>
+                    @elseif($revenue['total_enrollments_per'] < 0)
+                        <span class="text-danger ms-2">{{ $revenue['total_enrollments_per'] }}% <i
+                                class="ph-trend-down me-2"></i></span>
+                    @endif
+                </p>
                 <div class="progress mb-3" style="height: 0.625rem;">
                     <div class="progress-bar bg-enrollment"
                         style="width: {{ $revenue['this_year_total_enrollments_per'] }}%"
                         aria-valuenow="{{ $revenue['this_year_total_enrollments_per'] }}" aria-valuemin="0"
                         aria-valuemax="100" title="{{ $revenue['this_year_total_enrollments'] }}"
                         data-bs-popup="tooltip">
+
+                        {{--  <span class="popOvertop" data-toggle="tooltip" data-placement="top"
+                            title="{{ $revenue['this_year_total_enrollments_per'] }}"
+                            style="width:{{ $revenue['this_year_total_enrollments_per'] }}%;">
+                        </span>  --}}
                     </div>
                 </div>
 
@@ -405,13 +421,26 @@
                         data-bs-popup="tooltip"></div>
                 </div>
 
-                <p class="mb-3">Enrollments through installments & EMI </p>
+                <p class="mb-3">Enrollments through installments & EMI
+                    @if ($revenue['total_emi_enrollments_per'] > 0)
+                        <span class="text-success ms-2">{{ $revenue['total_emi_enrollments_per'] }}% <i
+                                class="ph-trend-up me-2"></i></span>
+                    @elseif($revenue['total_emi_enrollments_per'] < 0)
+                        <span class="text-danger ms-2">{{ $revenue['total_emi_enrollments_per'] }}% <i
+                                class="ph-trend-down me-2"></i></span>
+                    @endif
+                </p>
                 <div class="progress mb-3" style="height: 0.625rem;">
                     <div class="progress-bar bg-enrollment"
                         style="width: {{ $revenue['this_year_emi_enrollments_per'] }}%"
                         aria-valuenow="{{ $revenue['this_year_emi_enrollments_per'] }}" aria-valuemin="0"
                         aria-valuemax="100" title="{{ $revenue['this_year_emi_enrollments'] }}"
-                        data-bs-popup="tooltip"></div>
+                        data-bs-popup="tooltip">
+                        {{--  <span class="popOvertop" data-toggle="tooltip" data-placement="top"
+                            title="{{ $revenue['this_year_emi_enrollments_per'] }}"
+                            style="width:{{ $revenue['this_year_emi_enrollments_per'] }}%;">
+                        </span>  --}}
+                    </div>
                 </div>
                 <div class="progress mb-3" style="height: 0.375rem;">
                     <div class="progress-bar bg-last-revenue"
@@ -451,6 +480,10 @@
                         style="width: {{ $revenue['this_year_total_revenue_per'] }}%"
                         aria-valuenow="{{ $revenue['this_year_total_revenue_per'] }}" aria-valuemin="0"
                         aria-valuemax="100" title="{{ $revenue['this_year_total_revenue'] }}" data-bs-popup="tooltip">
+                        {{--  <span class="popOvertop" data-toggle="tooltip" data-placement="top"
+                            title="{{ $revenue['this_year_total_revenue'] }}"
+                            style="width:{{ $revenue['this_year_total_revenue_per'] }}%;">
+                        </span>  --}}
                     </div>
                 </div>
                 <div class="progress mb-3" style="height: 0.375rem;">
@@ -476,6 +509,10 @@
                     <div class="progress-bar bg-enrollment" style="width: {{ $revenue['this_year_emi_revenue_per'] }}%"
                         aria-valuenow="{{ $revenue['this_year_emi_revenue_per'] }}" aria-valuemin="0"
                         aria-valuemax="100" title="{{ $revenue['this_year_emi_revenue'] }}" data-bs-popup="tooltip">
+                        {{--  <span class="popOvertop" data-toggle="tooltip" data-placement="top"
+                            title="{{ $revenue['this_year_emi_revenue'] }}"
+                            style="width:{{ $revenue['this_year_emi_revenue_per'] }}%;">
+                        </span>  --}}
                     </div>
                 </div>
                 <div class="progress mb-3" style="height: 0.375rem;">
@@ -494,92 +531,90 @@
         <div class="card">
             <div class="card-header d-flex align-items-center border-0">
                 <h5 class="fw-semibold mb-0">Total no of enrollment </h5>
-                {{--  <span class="ms-3 me-2 ">100</span>  --}}
-                @if ($revenue['enrollment_per_avg'] > 0)
-                    <span class="text-success ms-2">{{ $revenue['enrollment_per_avg'] }}% <i
+                @if ($revenue['total_no_enrollment_per'] > 0)
+                    <span class="text-success ms-2">{{ $revenue['total_no_enrollment_per'] }}% <i
                             class="ph-trend-up me-2"></i></span>
-                @elseif($revenue['enrollment_per_avg'] < 0)
-                    <span class="text-danger ms-2">{{ $revenue['enrollment_per_avg'] }}% <i
+                @elseif($revenue['total_no_enrollment_per'] < 0)
+                    <span class="text-danger ms-2">{{ $revenue['total_no_enrollment_per'] }}% <i
                             class="ph-trend-down me-2"></i></span>
-                    {{--  @else
-                    <span class="text-info ms-2">0.00% </span>  --}}
                 @endif
             </div>
 
             <div class="card-body pt-0">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
                                         <th>Courses Name</th>
-                                        <th>Leads</th>
                                         <th>Enrollment</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr
-                                        class="{{ $revenue['enrollment_per']['cat'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['cat'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['total_no_enrollment']['cat'] == $revenue['enrollment_max'] && $revenue['total_no_enrollment']['cat'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td>
                                             <div class="d-flex align-items-center"><span
                                                     class="d-inline-block bg-enrollment rounded-pill p-1 me-1"></span>CAT
                                             </div>
                                         </td>
-                                        <td>{{ $revenue['leads']['cat'] }}</td>
-                                        <td>{{ $revenue['enrollment_per']['cat'] }}</td>
+                                        <td>{{ $revenue['total_no_enrollment']['cat'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment_per']['non-cat'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['non-cat'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['total_no_enrollment']['non-cat'] == $revenue['enrollment_max'] && $revenue['total_no_enrollment']['non-cat'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td>
                                             <div class="d-flex align-items-center"><span
                                                     class="d-inline-block bg-enrollment-9 rounded-pill p-1 me-1"></span>NON-CAT
                                             </div>
                                         </td>
-                                        <td>{{ $revenue['leads']['non-cat'] }}</td>
-                                        <td>{{ $revenue['enrollment_per']['non-cat'] }}</td>
+                                        <td>{{ $revenue['total_no_enrollment']['non-cat'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment_per']['study-abroad'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['study-abroad'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['total_no_enrollment']['study-abroad'] == $revenue['enrollment_max'] && $revenue['total_no_enrollment']['study-abroad'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td>
                                             <div class="d-flex align-items-center"><span
                                                     class="d-inline-block bg-enrollment-8 rounded-pill p-1 me-1"></span>Study
                                                 Abroad</div>
                                         </td>
-                                        <td>{{ $revenue['leads']['study-abroad'] }}</td>
-                                        <td>{{ $revenue['enrollment_per']['study-abroad'] }}</td>
+                                        <td>{{ $revenue['total_no_enrollment']['study-abroad'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment_per']['undergrad'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['undergrad'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['total_no_enrollment']['undergrad'] == $revenue['enrollment_max'] && $revenue['total_no_enrollment']['undergrad'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td>
                                             <div class="d-flex align-items-center"><span
                                                     class="d-inline-block bg-enrollment-7 rounded-pill p-1 me-1"></span>UnderGrad
                                             </div>
                                         </td>
-                                        <td>{{ $revenue['leads']['undergrad'] }}</td>
-                                        <td>{{ $revenue['enrollment_per']['undergrad'] }}</td>
+                                        <td>{{ $revenue['total_no_enrollment']['undergrad'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment_per']['gdpi'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['gdpi'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['total_no_enrollment']['gdpi'] == $revenue['enrollment_max'] && $revenue['total_no_enrollment']['gdpi'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td><span
                                                 class="d-inline-block bg-enrollment-6 rounded-pill p-1 me-1"></span>GDPI
                                         </td>
-                                        <td>{{ $revenue['leads']['gdpi'] }}</td>
-                                        <td>{{ $revenue['enrollment_per']['gdpi'] }}</td>
+                                        <td>{{ $revenue['total_no_enrollment']['gdpi'] }}</td>
                                     </tr>
                                     <tr
-                                        class="{{ $revenue['enrollment_per']['mocks'] == $revenue['enrollment_max'] && $revenue['enrollment_per']['mocks'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        class="{{ $revenue['total_no_enrollment']['mocks'] == $revenue['enrollment_max'] && $revenue['total_no_enrollment']['mocks'] != 0 ? 'bg-enrollment-5' : '' }}">
                                         <td><span
                                                 class="d-inline-block bg-enrollment-5 rounded-pill p-1 me-1"></span>Mocks
                                         </td>
-                                        <td>{{ $revenue['leads']['mocks'] }}</td>
-                                        <td>{{ $revenue['enrollment_per']['mocks'] }}</td>
+                                        <td>{{ $revenue['total_no_enrollment']['mocks'] }}</td>
+                                    </tr>
+                                    <tr
+                                        class="{{ $revenue['total_no_enrollment']['old_order'] == $revenue['enrollment_max'] && $revenue['total_no_enrollment']['old_order'] != 0 ? 'bg-enrollment-5' : '' }}">
+                                        <td><span
+                                                class="d-inline-block bg-enrollment-5 rounded-pill p-1 me-1"></span>Old
+                                            Order
+                                        </td>
+                                        <td>{{ $revenue['total_no_enrollment']['old_order'] }}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-7">
                         <div class="chart-container text-center overflow-auto ">
                             <div class="chart has-fixed-height" id="c3_donut_chart"></div>
                         </div>
@@ -595,7 +630,8 @@
             <div class="card-header d-flex align-items-center border-0">
                 <h5 class="fw-semibold mb-0">Total revenue</h5>
                 @if ($revenue['total_today_revenue'] != 0)
-                    <span class="mx-2 bg-primary-2 roundedp-1">{{ $revenue['total_today_revenue'] }}</span>
+                    {{--  <span class="mx-2 bg-primary-2 rounded p-1">{{ $revenue['total_today_revenue'] }}</span>  --}}
+                    <span class="badge bg-primary rounded-pill mx-2">{{ $revenue['total_today_revenue'] }}</span>
                 @endif
                 @if ($revenue['total_per_revenue'] > 0)
                     <span class="text-success ">
@@ -630,8 +666,6 @@
             <div class="card-header d-flex align-items-center">
                 <h5 class="fw-semibold mb-0">Failed order</h5>
                 <div class="ms-auto">
-                    {{--  <i class="ph-info " data-bs-toggle="modal" data-bs-target="#modal_large" data-bs-popup="tooltip"
-                        title="Failed Order"></i>  --}}
                     <a href="{{ route('ceo-revenue-model') }}" class="ajaxviewmodel">
                         <i class="ph-info" data-bs-popup="tooltip" title="Failed Order"></i>
                     </a>
@@ -654,4 +688,3 @@
         </div>
     </div>
 </div>
-

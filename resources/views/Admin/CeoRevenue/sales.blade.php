@@ -1,5 +1,95 @@
+@php
+    $conversionSource = json_encode($sales['conversionSource']);
+    $conversionRatioLead = json_encode($sales['conversion_ratio_lead']);
+    $conversionRatioConversionLead = json_encode($sales['conversion_ratio_conversion_lead']);
+@endphp
+
+<script type="text/javascript" src="{{ asset('assets/js/datatables.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/js/select2.min.js') }}"></script>
 <script>
+    var conversionSource = <?= $conversionSource ?>;
+    var conversionRatioLead = <?= $conversionRatioLead ?>;
+    var conversionRatioConversionLead = <?= $conversionRatioConversionLead ?>;
+    $(function() {
+        $.extend($.fn.dataTable.defaults, {
+            autoWidth: false,
+            columnDefs: [{
+                orderable: false,
+                width: '100px',
+                targets: [1]
+            }],
+            dom: '<"datatable-header"fBl><"datatable-scroll"t><"datatable-footer"ip>',
+            language: {
+                search: '<span>Filter:</span> _INPUT_',
+                lengthMenu: '<span>Show:</span> _MENU_',
+                paginate: {
+                    'first': 'First',
+                    'last': 'Last',
+                    'next': '&rarr;',
+                    'previous': '&larr;'
+                }
+            },
+            drawCallback: function() {
+                $(this).find('tbody tr').slice(-3).find('.dropdown, .btn-group').addClass('dropup');
+            },
+            preDrawCallback: function() {
+                $(this).find('tbody tr').slice(-3).find('.dropdown, .btn-group').removeClass(
+                    'dropup');
+            }
+        });
+
+        $('.pending-table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "select": true,
+            "ajax": {
+                "url": "{{ route('ceo-sales-getData') }}",
+                "dataType": "json",
+                "type": "POST",
+                "data": {
+                    _token: "{{ csrf_token() }}",
+                    startDate: "{{ $startDate }}",
+                    endDate: "{{ $endDate }}",
+                }
+            },
+            "columns": [{
+                    "data": "DT_RowIndex",
+                    "searchable": false,
+                    "sortable": false
+                },
+                {
+                    "data": "owner",
+                },
+                {
+                    "data": "leads",
+                },
+                {
+                    "data": "converted"
+                },
+                {
+                    "data": "untouched"
+                },
+                {
+                    "data": "other_leads"
+                },
+                {
+                    "data": "talk_time"
+                },
+                {
+                    "data": "progress"
+                },
+            ]
+        });
+
+        $('.dataTables_length select').select2({
+            minimumResultsForSearch: Infinity,
+            width: 'auto'
+        });
+
+        $('input[aria-controls="DataTables_Table_0"]').addClass('rounded ms-2');
+    });
     $(document).ready(function() {
+
         var EchartsConversionColumnsBasicLight = function() {
             var _columnsBasicLightExample = function() {
                 if (typeof echarts == 'undefined') {
@@ -78,7 +168,7 @@
                                     100;
                                 var percantage = params[0].value != 0 ? per.toFixed(2) : (
                                     params[1].value != 0 ? 100 : 0);
-                                tooltip += percantage > 0 ?
+                                {{--  tooltip += percantage > 0 ?
                                     '<span class="text-success ms-2">' + percantage +
                                     '% <i class="ph-trend-up me-2"></i></span>' : (
                                         percantage < 0 ? '<span class="text-danger ms-2">' +
@@ -86,14 +176,14 @@
                                         '% <i class="ph-trend-down me-2"></i></span>' :
                                         '<span class="text-info ms-2">' +
                                         percantage +
-                                        '% </span>');
+                                        '% </span>');  --}}
                                 tooltip +=
-                                    '</p><p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary-2 align-items-center rounded-pill p-1 me-1"></span>Last Day<span class="ms-3"><b>' +
+                                    '</p><p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary-2 align-items-center rounded-pill p-1 me-1"></span>Conversion Leads<span class="ms-3"><b>' +
                                     params[0].value.toLocaleString('en-US', {
                                         style: 'decimal'
                                     }) + '</b></span></p>';
                                 tooltip +=
-                                    '<p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary align-items-center rounded-pill p-1 me-1"></span>Today<span class="ms-4 ps-1"><b>' +
+                                    '<p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary align-items-center rounded-pill p-1 me-1"></span>Leads<span class="ms-4 ps-1"><b>' +
                                     params[1].value.toLocaleString('en-US', {
                                         style: 'decimal'
                                     }) + '</b></span></p>';
@@ -104,15 +194,7 @@
                         // Horizontal axis
                         xAxis: [{
                             type: 'category',
-                            data: ['Direct', 'Website', 'Sales team', 'Ads',
-                                'Free cat mocks',
-                                'Free nmat mocks', 'Free cat works hops',
-                                'Already entrolled other institute',
-                                'Intersted in EMI',
-                                'Interested in course or call back requests',
-                                'NAIs chat',
-                                'Freebies on website', 'Sulekha'
-                            ],
+                            data: conversionSource,
                             axisLabel: {
                                 color: 'rgba(var(--body-color-rgb), .65)',
                                 rotate: 30,
@@ -160,12 +242,9 @@
 
                         // Add series
                         series: [{
-                                name: 'Leads',
+                                name: 'Conversion Leads',
                                 type: 'bar',
-                                data: [7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 9.0,
-                                    26.4, 58.7,
-                                    70.7, 175.6, 182.2, 48.7, 18.8
-                                ],
+                                data: conversionRatioConversionLead,
                                 itemStyle: {
                                     normal: {
                                         barBorderRadius: [4, 4, 0, 0],
@@ -199,12 +278,9 @@
                                 // }
                             },
                             {
-                                name: 'Conversion Leads',
+                                name: 'Leads',
                                 type: 'bar',
-                                data: [9.0, 26.4, 58.7, 70.7, 175.6, 182.2, 48.7, 18.8, 7.0,
-                                    23.2, 25.6,
-                                    76.7, 135.6, 162.2, 32.6, 20.0
-                                ],
+                                data: conversionRatioLead,
                                 itemStyle: {
                                     normal: {
                                         barBorderRadius: [4, 4, 0, 0],
@@ -236,7 +312,7 @@
                                 //         color: 'var(--body-color)'
                                 //     }
                                 // }
-                            }
+                            },
                         ]
                     });
                 }
@@ -619,7 +695,7 @@
 
         $('[data-bs-popup="tooltip"]').tooltip();
 
-        $('.custom-tooltip').tooltip({
+        {{--  $('.custom-tooltip').tooltip({
             html: true, // Enable HTML content in the tooltip
             template: '<div class="tooltip" role="tooltip"><div class="tooltip-inner bg-info"><p></p></div></div>',
         });
@@ -629,7 +705,7 @@
             $('.tooltip-inner').html(
                 '<h5>Untouched Leads</h5><table class="table mt-0 text-white"><tr><td>Victoria</td><td>2</td></tr><tr><td>James</td><td>3</td></tr></table>'
             );
-        });
+        });  --}}
     });
 </script>
 <div class="row">
@@ -638,7 +714,7 @@
             <div class="card-header d-flex align-items-center">
                 <h5 class="fw-semibold mb-0">Total calls</h5>
                 <div class="ms-auto">
-                    <span class="me-1 h5">826</span>
+                    <span class="me-1 badge bg-primary rounded-pill">0</span>
                     <i class="ph-info ms-1" data-bs-popup="tooltip"
                         title="Details of total calls, including how many were answered and how many went unanswered"></i>
                 </div>
@@ -648,11 +724,11 @@
                     <tbody>
                         <tr>
                             <td>Total connected calls </td>
-                            <td>736</td>
+                            <td>0</td>
                         </tr>
                         <tr>
                             <td>Total unanswered incoming calls</td>
-                            <td>82</td>
+                            <td>0</td>
                         </tr>
                     </tbody>
                 </table>
@@ -664,7 +740,9 @@
             <div class="card-header d-flex align-items-center">
                 <h5 class="fw-semibold mb-0">Leads</h5>
                 <div class="ms-auto">
-                    <i class="ph-info ms-1 custom-tooltip" data-bs-popup="tooltip" title="Untouched Leads"></i>
+                    {{--  <i class="ph-info ms-1 custom-tooltip" data-bs-popup="tooltip" title="Untouched Leads"></i>  --}}
+                    <i class="ph-info ms-1 " data-bs-popup="tooltip" title="Untouched Leads" data-bs-toggle="modal"
+                        data-bs-target="#UntouchedLeads"></i>
                 </div>
             </div>
             <div class="table-responsive">
@@ -672,13 +750,13 @@
                     <tbody>
                         <tr>
                             <td>Total leads </td>
-                            <td>85</td>
+                            <td>{{ $sales['total_lead'] }}</td>
                             <td>100%</td>
                         </tr>
                         <tr>
                             <td>Untouched leads</td>
-                            <td class="text-danger">13</td>
-                            <td class="text-danger">15.29%</td>
+                            <td class="text-danger">{{ $sales['untouched_lead'] }}</td>
+                            <td class="text-danger">{{ $sales['untouched_lead_per'] }}%</td>
                         </tr>
                     </tbody>
                 </table>
@@ -690,6 +768,7 @@
             <div class="card-header d-flex align-items-center">
                 <h5 class="fw-semibold mb-0">Converted leads</h5>
                 <div class="ms-auto">
+                    <span class="me-1 badge bg-primary rounded-pill">{{ $sales['total_converted_leads'] }}</span>
                     <i class="ph-info ms-1" data-bs-popup="tooltip"
                         title="information about converted leads from agent-based and direct sources"></i>
                 </div>
@@ -699,11 +778,11 @@
                     <tbody>
                         <tr>
                             <td>Agent based leads</td>
-                            <td>56</td>
+                            <td>{{ $sales['agent_base_leads'] }}</td>
                         </tr>
                         <tr>
                             <td>Direct leads</td>
-                            <td>16</td>
+                            <td>{{ $sales['direct_leads'] }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -732,7 +811,7 @@
                                             <i class="ph-phone "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">120</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Total calls</span>
                                         </div>
                                     </div>
@@ -754,7 +833,7 @@
                                             <i class="fas fa-phone-volume "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">100</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Connected calls</span>
                                         </div>
                                     </div>
@@ -776,7 +855,7 @@
                                             <i class="ph-phone-x"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">20</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Missed calls</span>
                                         </div>
                                     </div>
@@ -798,7 +877,7 @@
                                             <i class="ph-phone-outgoing "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">8</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Calls queue</span>
                                         </div>
                                     </div>
@@ -820,7 +899,7 @@
                                             <i class="ph-clock"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">10.2</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Duration hrs</span>
                                         </div>
                                     </div>
@@ -842,7 +921,7 @@
                                             <i class="fas fa-hourglass-half"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">1.35</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Avg duration in min</span>
                                         </div>
                                     </div>
@@ -864,7 +943,7 @@
                                             <i class="far fa-user"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">16</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Number of agents</span>
                                         </div>
                                     </div>
@@ -898,7 +977,7 @@
                                             <i class="ph-phone "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">626</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Total calls</span>
                                         </div>
                                     </div>
@@ -920,7 +999,7 @@
                                             <i class="fas fa-phone-volume "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">576</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Connected calls</span>
                                         </div>
                                     </div>
@@ -942,7 +1021,7 @@
                                             <i class="ph-phone-x"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">50</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Unanswered calls</span>
                                         </div>
                                     </div>
@@ -964,7 +1043,7 @@
                                             <i class="ph-phone-outgoing "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">8</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Calls queue</span>
                                         </div>
                                     </div>
@@ -986,7 +1065,7 @@
                                             <i class="fas fa-hourglass-half"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">20.4</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Duration hrs</span>
                                         </div>
                                     </div>
@@ -1008,7 +1087,7 @@
                                             <i class="fas fa-hourglass-half"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">1.47</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Avg duration in min</span>
                                         </div>
                                     </div>
@@ -1030,7 +1109,7 @@
                                             <i class="far fa-user"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">16</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Number of agents</span>
                                         </div>
                                     </div>
@@ -1064,7 +1143,7 @@
                                             <i class="ph-phone "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">80</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Total calls</span>
                                         </div>
                                     </div>
@@ -1086,7 +1165,7 @@
                                             <i class="fas fa-phone-volume "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">60</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Connected calls</span>
                                         </div>
                                     </div>
@@ -1108,7 +1187,7 @@
                                             <i class="ph-phone-x"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">12</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Missed calls</span>
                                         </div>
                                     </div>
@@ -1130,7 +1209,7 @@
                                             <i class="ph-phone-outgoing "></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">8</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Calls queue</span>
                                         </div>
                                     </div>
@@ -1152,7 +1231,7 @@
                                             <i class="fas fa-hourglass-half"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">5.8</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Duration hrs</span>
                                         </div>
                                     </div>
@@ -1174,7 +1253,7 @@
                                             <i class="fas fa-hourglass-half"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">1.12</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Avg duration in min</span>
                                         </div>
                                     </div>
@@ -1196,7 +1275,7 @@
                                             <i class="far fa-user"></i>
                                         </a>
                                         <div class="ms-3">
-                                            <h5 class="mb-0">16</h5>
+                                            <h5 class="mb-0">0</h5>
                                             <span class="text-muted">Number of agents</span>
                                         </div>
                                     </div>
@@ -1231,8 +1310,9 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Call Hour Flow <span class="float-end ">576
+                <h5 class="mb-0">Call Hour Flow <span class="float-end badge bg-enrollment rounded-pill">0
                     </span></h5>
+
             </div>
 
             <div class="card-body">
@@ -1249,7 +1329,7 @@
                 <h5 class="mb-0">Per agent conversion</h5>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover table-xxs">
+                <table class="table datatable-basic pending-table  table-hover table-xxs">
                     <thead>
                         <tr>
                             <th>Sr.No</th>
@@ -1257,6 +1337,7 @@
                             <th>Leads</th>
                             <th>Converted leads</th>
                             <th>Untouched leads</th>
+                            <th>Other leads</th>
                             <th>Avg talk time</th>
                             <th>
                                 <div class="d-flex align-items-center">
@@ -1277,272 +1358,6 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr class="active bg-enrollment-5">
-                            <td>01</td>
-                            <td>Deeksha kapoor</td>
-                            <td>17</td>
-                            <td>12</td>
-                            <td class="text-danger">5</td>
-                            <td>11.6 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 10 * 5 }}%"
-                                        aria-valuenow="10" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">10%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width:  {{ 10 * 5 }}%"
-                                        aria-valuenow="10" aria-valuemin="0" aria-valuemax="20">
-                                        <span>10%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>02</td>
-                            <td>Farnaz khan</td>
-                            <td>17</td>
-                            <td>11</td>
-                            <td class="text-danger">16</td>
-                            <td>5.5 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 7 * 5 }}%"
-                                        aria-valuenow="7" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">7%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 18 * 5 }}%"
-                                        aria-valuenow="18" aria-valuemin="0" aria-valuemax="20">
-                                        <span>18%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>03</td>
-                            <td>Vanshita hiranandi</td>
-                            <td>15</td>
-                            <td>10</td>
-                            <td class="text-danger">5</td>
-                            <td>5.5 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 9 * 5 }}%"
-                                        aria-valuenow="9" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">9%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 15 * 5 }}%"
-                                        aria-valuenow="15" aria-valuemin="0" aria-valuemax="20">
-                                        <span>15%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>04</td>
-                            <td>Deeksha kapoor</td>
-                            <td>17</td>
-                            <td>12</td>
-                            <td class="text-danger">5</td>
-                            <td>11.6 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 3 * 5 }}%"
-                                        aria-valuenow="3" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">3%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 14 * 5 }}%"
-                                        aria-valuenow="14" aria-valuemin="0" aria-valuemax="20">
-                                        <span>14%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>05</td>
-                            <td>Farnaz khan</td>
-                            <td>17</td>
-                            <td>11</td>
-                            <td class="text-danger">16</td>
-                            <td>5.5 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 7 * 5 }}%"
-                                        aria-valuenow="7" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">7%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 18 * 5 }}%"
-                                        aria-valuenow="18" aria-valuemin="0" aria-valuemax="20">
-                                        <span>18%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>06</td>
-                            <td>Vanshita hiranandi</td>
-                            <td>15</td>
-                            <td>10</td>
-                            <td class="text-danger">5</td>
-                            <td>5.5 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 9 * 5 }}%"
-                                        aria-valuenow="9" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">9%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 15 * 5 }}%"
-                                        aria-valuenow="15" aria-valuemin="0" aria-valuemax="20">
-                                        <span>15%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>07</td>
-                            <td>Deeksha kapoor</td>
-                            <td>17</td>
-                            <td>12</td>
-                            <td class="text-danger">5</td>
-                            <td>11.6 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 11 * 5 }}%"
-                                        aria-valuenow="11" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">11%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 12 * 5 }}%"
-                                        aria-valuenow="12" aria-valuemin="0" aria-valuemax="20">
-                                        <span>12%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>08</td>
-                            <td>Farnaz khan</td>
-                            <td>17</td>
-                            <td>11</td>
-                            <td class="text-danger">16</td>
-                            <td>5.5 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 7 * 5 }}%"
-                                        aria-valuenow="7" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">7%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 17 * 5 }}%"
-                                        aria-valuenow="17" aria-valuemin="0" aria-valuemax="20">
-                                        <span>17%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>09</td>
-                            <td>Vanshita hiranandi</td>
-                            <td>15</td>
-                            <td>10</td>
-                            <td class="text-danger">5</td>
-                            <td>5.5 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 8 * 5 }}%"
-                                        aria-valuenow="8" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">8%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 13 * 5 }}%"
-                                        aria-valuenow="13" aria-valuemin="0" aria-valuemax="20">
-                                        <span>13%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>10</td>
-                            <td>Deeksha kapoor</td>
-                            <td>17</td>
-                            <td>12</td>
-                            <td class="text-danger">5</td>
-                            <td>11.6 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 4 * 5 }}%"
-                                        aria-valuenow="4" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">4%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 16 * 5 }}%"
-                                        aria-valuenow="16" aria-valuemin="0" aria-valuemax="20">
-                                        <span>16%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>11</td>
-                            <td>Farnaz khan</td>
-                            <td>17</td>
-                            <td>11</td>
-                            <td class="text-danger">16</td>
-                            <td>5.5 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 6 * 5 }}%"
-                                        aria-valuenow="6" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">6%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 17 * 5 }}%"
-                                        aria-valuenow="17" aria-valuemin="0" aria-valuemax="20">
-                                        <span>17%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>12</td>
-                            <td>Vanshita hiranandi</td>
-                            <td>15</td>
-                            <td>10</td>
-                            <td class="text-danger">5</td>
-                            <td>5.5 min</td>
-                            <td>
-                                <div class="progress mb-1 h-16px">
-                                    <div class="progress-bar bg-primary-2" style="width: {{ 11 * 5 }}%"
-                                        aria-valuenow="11" aria-valuemin="0" aria-valuemax="20">
-                                        <span class="text-primary">11%</span>
-                                    </div>
-                                </div>
-                                <div class="progress h-16px">
-                                    <div class="progress-bar bg-primary" style="width: {{ 13 * 5 }}%"
-                                        aria-valuenow="13" aria-valuemin="0" aria-valuemax="20">
-                                        <span>13%</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
                 </table>
             </div>
         </div>
@@ -1562,13 +1377,13 @@
                     <tbody>
                         <tr>
                             <td>09:00 AM - 09:00 PM</td>
-                            <td>576</td>
+                            <td>0</td>
                         </tr>
                         <tr>
                             <td>09:00 PM - 09:00 AM<br>
                                 (After office hours)
                             </td>
-                            <td>120</td>
+                            <td>0</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1578,9 +1393,9 @@
             <div class="card-header d-flex align-items-center">
                 <h5 class="fw-semibold mb-0">Total missed calls</h5>
                 <div class="ms-auto">
-                    <span class="me-1 h5">50</span>
+                    <span class="me-1 badge bg-enrollment rounded-pill">0</span>
                     <i class="ph-info ms-1 " data-bs-popup="tooltip" title="Agent Disconnect" data-bs-toggle="modal"
-                        data-bs-target="#modal_large"></i>
+                        data-bs-target="#AgentDisconnect"></i>
                 </div>
             </div>
             <div class="card-body">
@@ -1591,8 +1406,37 @@
         </div>
     </div>
 </div>
-<!-- Large modal -->
-<div id="modal_large" class="modal fade" tabindex="-1">
+<!-- modal -->
+<div id="UntouchedLeads" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Untouched leads</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="table-responsive border-radius-15">
+                <table class="table table-bordered table-framed">
+                    <thead>
+                        <tr>
+                            <th>Agent name</th>
+                            <th>Untouched</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($sales['untouched_lead_list'] as $key => $value)
+                            <tr>
+                                <td>{{ $key }}</td>
+                                <td>{{ $value }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="AgentDisconnect" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-sm modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
@@ -1612,18 +1456,18 @@
                     <tbody>
                         <tr>
                             <td>Farnaz khan</td>
-                            <td>8</td>
-                            <td>4</td>
+                            <td>0</td>
+                            <td>0</td>
                         </tr>
                         <tr>
                             <td>Seema yadav</td>
-                            <td>6</td>
-                            <td>3</td>
+                            <td>0</td>
+                            <td>0</td>
                         </tr>
                         <tr>
                             <td>Prerana panda</td>
-                            <td>8</td>
-                            <td>4</td>
+                            <td>0</td>
+                            <td>0</td>
                         </tr>
                     </tbody>
                 </table>

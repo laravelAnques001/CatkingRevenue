@@ -127,3 +127,52 @@
 .bg-last-revenue {
     background-color: #8DC2FF;
 }
+
+.paginate_button {
+    /* background-color: rgba(var(--enrollment-rgb), 0.5); */
+    border-radius: 10px;
+    padding: 3px;
+    margin: 2px;
+}
+
+.dataTables_paginate .paginate_button.current, .dataTables_paginate .paginate_button.current:hover, .dataTables_paginate .paginate_button.current:focus {
+    color: #fff;
+    background-color: #455A64;
+}
+
+.dataTables_paginate .paginate_button {
+    display: inline-block;
+    padding: 9px;
+    min-width: 38px;
+    margin-left: 2px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    color: #333333;
+    border-radius: 3px;
+}
+
+.dataTables_filter input {
+    outline: 0;
+    width: 200px;
+    height: 38px;
+    padding: 8px 0;
+    padding-right: 0px;
+    padding-right: 24px;
+    font-size: 13px;
+    line-height: 1.5384616;
+    color: #333333;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-bottom-color: transparent;
+    border-left-width: 1px;
+    border-width: 1px 0;
+    border-bottom-color: #ddd;
+}
+
+.dataTables_length{
+    display: none !important;
+}
