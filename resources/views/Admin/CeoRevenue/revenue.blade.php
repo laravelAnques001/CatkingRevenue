@@ -11,6 +11,7 @@
 </style>
 <script>
     $(document).ready(function() {
+        $('.dashboardShowDate').html("({{ $selectedStartDate }} to {{ $selectedEndDate }})");
         const courseArr = <?= $courseArr ?>;
         const todayRevenue = <?= $todayRevenue ?>;
         const previousDayRevenue = <?= $previousDayRevenue ?>;
@@ -364,14 +365,14 @@
         // _componentTooltipCustomColor();
 
         // enrollment show progress bar start
-        {{--  $('.popOvertop').tooltip('show');
+        $('.popOvertop').tooltip('show');
         $('.tooltip-inner').addClass('shadow');
         $('.tooltip-arrow').addClass('d-none');
 
          $(".progress-bar").each(function() {
              each_bar_width = $(this).attr('aria-valuenow');
              $(this).width(each_bar_width + '%');
-         });  --}}
+         });
         // enrollment show progress bar end
 
     });
@@ -479,11 +480,11 @@
                     <div class="progress-bar bg-enrollment"
                         style="width: {{ $revenue['this_year_total_revenue_per'] }}%"
                         aria-valuenow="{{ $revenue['this_year_total_revenue_per'] }}" aria-valuemin="0"
-                        aria-valuemax="100" title="{{ $revenue['this_year_total_revenue'] }}" data-bs-popup="tooltip">
-                        {{--  <span class="popOvertop" data-toggle="tooltip" data-placement="top"
-                            title="{{ $revenue['this_year_total_revenue'] }}"
+                        aria-valuemax="100" title="{{ $revenue['this_year_total_revenue'] }}  Per: {{  $revenue['total_revenue_per'] }}%" data-bs-popup="tooltip">
+                        <span class="popOvertop" data-toggle="tooltip" data-placement="top"
+                            title="&#8377; {{ $revenue['this_year_total_revenue'] }}"
                             style="width:{{ $revenue['this_year_total_revenue_per'] }}%;">
-                        </span>  --}}
+                        </span>
                     </div>
                 </div>
                 <div class="progress mb-3" style="height: 0.375rem;">
@@ -508,11 +509,11 @@
                 <div class="progress mb-3" style="height: 0.625rem;">
                     <div class="progress-bar bg-enrollment" style="width: {{ $revenue['this_year_emi_revenue_per'] }}%"
                         aria-valuenow="{{ $revenue['this_year_emi_revenue_per'] }}" aria-valuemin="0"
-                        aria-valuemax="100" title="{{ $revenue['this_year_emi_revenue'] }}" data-bs-popup="tooltip">
-                        {{--  <span class="popOvertop" data-toggle="tooltip" data-placement="top"
-                            title="{{ $revenue['this_year_emi_revenue'] }}"
+                        aria-valuemax="100" title="{{ $revenue['this_year_emi_revenue'] }}  Per: {{ $revenue['total_emi_revenue_per'] }}" data-bs-popup="tooltip">
+                        <span class="popOvertop" data-toggle="tooltip" data-placement="top"
+                            title="&#8377; {{ $revenue['this_year_emi_revenue'] }}  Per: {{ $revenue['total_emi_revenue_per'] }}"
                             style="width:{{ $revenue['this_year_emi_revenue_per'] }}%;">
-                        </span>  --}}
+                        </span>
                     </div>
                 </div>
                 <div class="progress mb-3" style="height: 0.375rem;">

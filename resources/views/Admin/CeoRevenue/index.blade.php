@@ -79,6 +79,8 @@
                 <h4 class="page-title mb-0">
                     Welcome to CEO Revenue Dashboard <span class="fw-normal"><img
                             src="{{ asset('assets/images/icons/hand.png') }}" alt="hand" class="ms-2"></span>
+                    <span class="fw-normal text-muted ms-2 fs-base fw-medium dashboardShowDate">({{ now()->format('Y-m-d') }} to
+                        {{ now()->format('Y-m-d') }})</span>
                 </h4>
 
                 <a href="#page_header"

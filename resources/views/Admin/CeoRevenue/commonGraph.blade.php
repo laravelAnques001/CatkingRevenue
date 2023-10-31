@@ -85,34 +85,56 @@
                                 }
                             },
                             formatter: function(params) {
-                                var tooltip = '' + params[0]
-                                    .name;
+                                var tooltip = '<span class="text-center">' +
+                                    params[1].value.toLocaleString('en-US', {
+                                        style: 'decimal'
+                                    }) + '</span><br>';
                                 var oldValue = params[0].value > 0 ? params[0].value : 1;
                                 var per = (params[1].value - oldValue) / oldValue *
                                     100;
                                 var percantage = params[0].value != 0 ? per.toFixed(2) : (
                                     params[1].value != 0 ? 100 : 0);
                                 tooltip += percantage > 0 ?
-                                    '<span class="text-success ms-2">' + percantage +
-                                    '% <i class="ph-trend-up me-2"></i></span>' : (
-                                        percantage < 0 ? '<span class="text-danger ms-2">' +
+                                    '<span class="text-success text-center">' + percantage +
+                                    '% <br><i class="ph-trend-up me-2"></i></span>' : (
+                                        percantage < 0 ?
+                                        '<span class="text-danger text-center">' +
                                         percantage +
-                                        '% <i class="ph-trend-down me-2"></i></span>' :
-                                        '<span class="text-info ms-2">' +
+                                        '% <br><i class="ph-trend-down me-2"></i></span>' :
+                                        '<span class="text-info text-center">' +
                                         percantage +
                                         '% </span>');
-                                tooltip +=
-                                    '</p><p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary-2 align-items-center rounded-pill p-1 me-1"></span>Last Day<span class="ms-3"><b>' +
-                                    params[0].value.toLocaleString('en-US', {
-                                        style: 'decimal'
-                                    }) + '</b></span></p>';
-                                tooltip +=
-                                    '<p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary align-items-center rounded-pill p-1 me-1"></span>Today<span class="ms-4 ps-1"><b>' +
-                                    params[1].value.toLocaleString('en-US', {
-                                        style: 'decimal'
-                                    }) + '</b></span></p>';
                                 return tooltip;
                             }
+                            // formatter: function(params) {
+                            //     var tooltip = '' + params[0]
+                            //         .name;
+                            //     var oldValue = params[0].value > 0 ? params[0].value : 1;
+                            //     var per = (params[1].value - oldValue) / oldValue *
+                            //         100;
+                            //     var percantage = params[0].value != 0 ? per.toFixed(2) : (
+                            //         params[1].value != 0 ? 100 : 0);
+                            //     tooltip += percantage > 0 ?
+                            //         '<span class="text-success ms-2">' + percantage +
+                            //         '% <i class="ph-trend-up me-2"></i></span>' : (
+                            //             percantage < 0 ? '<span class="text-danger ms-2">' +
+                            //             percantage +
+                            //             '% <i class="ph-trend-down me-2"></i></span>' :
+                            //             '<span class="text-info ms-2">' +
+                            //             percantage +
+                            //             '% </span>');
+                            //     tooltip +=
+                            //         '</p><p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary-2 align-items-center rounded-pill // p-1 me-1"></span>Last Day<span class="ms-3"><b>' +
+                            //         params[0].value.toLocaleString('en-US', {
+                            //             style: 'decimal'
+                            //         }) + '</b></span></p>';
+                            //     tooltip +=
+                            //         '<p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary align-items-center rounded-pill p-1 // me-1"></span>Today<span class="ms-4 ps-1"><b>' +
+                            //         params[1].value.toLocaleString('en-US', {
+                            //             style: 'decimal'
+                            //         }) + '</b></span></p>';
+                            //     return tooltip;
+                            // }
                         },
 
                         // Horizontal axis
@@ -120,8 +142,9 @@
                             type: 'category',
                             data: courseArr,
                             axisLabel: {
-                                color: 'rgba(var(--body-color-rgb), .65)',
-                                rotate: 30
+                                color: 'rgba(var(--body-color-rgb), 1)',
+                                rotate: 30,
+                                fontWeight: 'bold'
                             },
                             axisLine: {
                                 lineStyle: {
@@ -177,20 +200,19 @@
                                 normal: {
                                     barBorderRadius: [4, 4, 0, 0],
                                     label: {
-                                        show: true,
-                                        // position: 'top',
-                                        // verticalAlign: 'middle',
-                                        // distance:20,
-                                        // rotate: 90,
-                                        distance: -5,
-                                        rotate: 90,
-                                        bottom: 15,
-                                        align: 'left',
+                                        show: false,
+                                        position: 'top',
                                         verticalAlign: 'middle',
-                                        position: 'bottom',
-                                        fontWeight: 500,
-                                        fontSize: 12,
-                                        color: 'var(--body-color)',
+                                        distance: 10,
+                                        // distance: -5,
+                                        // rotate: 90,
+                                        // bottom: 15,
+                                        // align: 'left',
+                                        // verticalAlign: 'middle',
+                                        // position: 'bottom',
+                                        // fontWeight: 500,
+                                        // fontSize: 12,
+                                        // color: 'var(--body-color)',
                                         formatter: function(d) {
                                             return d.data.toLocaleString('en-US', {
                                                 style: 'decimal'
@@ -221,19 +243,18 @@
                                     barBorderRadius: [4, 4, 0, 0],
                                     label: {
                                         show: true,
-                                        // position: 'top',
-                                        // rotate: 90,
-                                        // distance:20,
-                                        // verticalAlign: 'middle',
-                                        distance: -5,
-                                        rotate: 90,
-                                        bottom: 15,
-                                        align: 'left',
+                                        position: 'top',
+                                        distance: 10,
                                         verticalAlign: 'middle',
-                                        position: 'bottom',
-                                        fontWeight: 500,
-                                        fontSize: 12,
-                                        color: 'var(--body-color)',
+                                        // distance: -5,
+                                        // rotate: 90,
+                                        // bottom: 15,
+                                        // align: 'left',
+                                        // verticalAlign: 'middle',
+                                        // position: 'bottom',
+                                        // fontWeight: 500,
+                                        // fontSize: 12,
+                                        // color: 'var(--body-color)',
                                         formatter: function(d) {
                                             return d.data.toLocaleString('en-US', {
                                                 style: 'decimal'
@@ -365,34 +386,56 @@
                                 }
                             },
                             formatter: function(params) {
-                                var tooltip = '' + params[0]
-                                    .name;
+                                var tooltip = '<span class="text-center">' +
+                                    params[1].value.toLocaleString('en-US', {
+                                        style: 'decimal'
+                                    }) + '</span><br>';
                                 var oldValue = params[0].value > 0 ? params[0].value : 1;
                                 var per = (params[1].value - oldValue) / oldValue *
                                     100;
                                 var percantage = params[0].value != 0 ? per.toFixed(2) : (
                                     params[1].value != 0 ? 100 : 0);
                                 tooltip += percantage > 0 ?
-                                    '<span class="text-success ms-2">' + percantage +
-                                    '% <i class="ph-trend-up me-2"></i></span>' : (
-                                        percantage < 0 ? '<span class="text-danger ms-2">' +
+                                    '<span class="text-success text-center">' + percantage +
+                                    '% <br><i class="ph-trend-up me-2"></i></span>' : (
+                                        percantage < 0 ?
+                                        '<span class="text-danger text-center">' +
                                         percantage +
-                                        '% <i class="ph-trend-down me-2"></i></span>' :
-                                        '<span class="text-info ms-2">' +
+                                        '% <br><i class="ph-trend-down me-2"></i></span>' :
+                                        '<span class="text-info text-center">' +
                                         percantage +
                                         '% </span>');
-                                tooltip +=
-                                    '</p><p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary-2 align-items-center rounded-pill p-1 me-1"></span>Last Day<span class="ms-3"><b>' +
-                                    params[0].value.toLocaleString('en-US', {
-                                        style: 'decimal'
-                                    }) + '</b></span></p>';
-                                tooltip +=
-                                    '<p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary align-items-center rounded-pill p-1 me-1"></span>Today<span class="ms-4 ps-1"><b>' +
-                                    params[1].value.toLocaleString('en-US', {
-                                        style: 'decimal'
-                                    }) + '</b></span></p>';
                                 return tooltip;
                             }
+                            // formatter: function(params) {
+                            //     var tooltip = '' + params[0]
+                            //         .name;
+                            //     var oldValue = params[0].value > 0 ? params[0].value : 1;
+                            //     var per = (params[1].value - oldValue) / oldValue *
+                            //         100;
+                            //     var percantage = params[0].value != 0 ? per.toFixed(2) : (
+                            //         params[1].value != 0 ? 100 : 0);
+                            //     tooltip += percantage > 0 ?
+                            //         '<span class="text-success ms-2">' + percantage +
+                            //         '% <i class="ph-trend-up me-2"></i></span>' : (
+                            //             percantage < 0 ? '<span class="text-danger ms-2">' +
+                            //             percantage +
+                            //             '% <i class="ph-trend-down me-2"></i></span>' :
+                            //             '<span class="text-info ms-2">' +
+                            //             percantage +
+                            //             '% </span>');
+                            //     tooltip +=
+                            //         '</p><p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary-2 align-items-center rounded-pill // p-1 me-1"></span>Last Day<span class="ms-3"><b>' +
+                            //         params[0].value.toLocaleString('en-US', {
+                            //             style: 'decimal'
+                            //         }) + '</b></span></p>';
+                            //     tooltip +=
+                            //         '<p class="d-flex align-items-center text-muted fs-sm"><span class="bg-primary align-items-center rounded-pill p-1 // me-1"></span>Today<span class="ms-4 ps-1"><b>' +
+                            //         params[1].value.toLocaleString('en-US', {
+                            //             style: 'decimal'
+                            //         }) + '</b></span></p>';
+                            //     return tooltip;
+                            // }
                         },
 
                         // Horizontal axis
@@ -401,7 +444,8 @@
                             data: courseArr,
                             axisLabel: {
                                 color: 'rgba(var(--body-color-rgb), .65)',
-                                rotate: 30
+                                rotate: 30,
+                                fontWeight: 'bold'
                             },
                             axisLine: {
                                 lineStyle: {
@@ -454,25 +498,28 @@
                                 normal: {
                                     barBorderRadius: [4, 4, 0, 0],
                                     label: {
-                                        show: true,
+                                        show: false,
+                                        position: 'top',
+                                        distance: 10,
+                                        verticalAlign: 'middle',
                                         // position: 'top',
                                         // fontWeight: 500,
                                         // fontSize: 12,
                                         // color: 'var(--body-color)'
-                                        distance: -5,
-                                        rotate: 90,
-                                        bottom: 15,
-                                        align: 'left',
-                                        verticalAlign: 'middle',
-                                        position: 'bottom',
-                                        fontWeight: 500,
-                                        fontSize: 12,
-                                        color: 'var(--body-color)',
-                                        formatter: function(d) {
-                                            return d.data.toLocaleString('en-US', {
-                                                style: 'decimal'
-                                            });
-                                        }
+                                        // distance: -5,
+                                        // rotate: 90,
+                                        // bottom: 15,
+                                        // align: 'left',
+                                        // verticalAlign: 'middle',
+                                        // position: 'bottom',
+                                        // fontWeight: 500,
+                                        // fontSize: 12,
+                                        // color: 'var(--body-color)',
+                                        // formatter: function(d) {
+                                        //     return d.data.toLocaleString('en-US', {
+                                        //         style: 'decimal'
+                                        //     });
+                                        // }
                                     }
                                 }
                             },
@@ -494,19 +541,20 @@
                                     barBorderRadius: [4, 4, 0, 0],
                                     label: {
                                         show: true,
-                                        // position: 'top',
+                                        position: 'top',
+                                        distance: 10,
+                                        verticalAlign: 'middle',
+
+                                        // distance: -5,
+                                        // rotate: 90,
+                                        // bottom: 15,
+                                        // align: 'left',
+                                        // verticalAlign: 'middle',
+                                        // position: 'bottom',
                                         // fontWeight: 500,
                                         // fontSize: 12,
-                                        // color: 'var(--body-color)'
-                                        distance: -5,
-                                        rotate: 90,
-                                        bottom: 15,
-                                        align: 'left',
-                                        verticalAlign: 'middle',
-                                        position: 'bottom',
-                                        fontWeight: 500,
-                                        fontSize: 12,
-                                        color: 'var(--body-color)',
+                                        // color: 'var(--body-color)',
+
                                         formatter: function(d) {
                                             return d.data.toLocaleString('en-US', {
                                                 style: 'decimal'
@@ -563,8 +611,19 @@
             }
         }();
 
-        EchartsTotalRevenue.init();
-        EchartsNoOfEnrollment.init();
+        if (todayRevenue.length > 0 && lastDayRevenue.length > 0) {
+            EchartsTotalRevenue.init();
+        } else {
+            $('#total_revenue').html('<h5>Data not found</h5>');
+            $('#total_revenue').addClass('d-flex justify-content-center align-items-center');
+        }
+
+        if (todayEnrollment.length > 0 && lastDayEnrollment.length > 0) {
+            EchartsNoOfEnrollment.init();
+        } else {
+            $('#no_of_enrollment').html('<h5>Data not found</h5>');
+            $('#no_of_enrollment').addClass('d-flex justify-content-center align-items-center');
+        }
 
     });
 </script>
@@ -608,7 +667,8 @@
                 <h5 class="fw-semibold mb-0">No of enrollment</h5>
                 @if ($commonGraph['total_today_enrollment'] != 0)
                     {{--  <span class="mx-3 bg-enrollment-3 rounded p-1">{{ $commonGraph['total_today_enrollment'] }}</span>  --}}
-                    <span class="badge bg-enrollment rounded-pill mx-2">{{ $commonGraph['total_today_enrollment'] }}</span>
+                    <span
+                        class="badge bg-enrollment rounded-pill mx-2">{{ $commonGraph['total_today_enrollment'] }}</span>
                 @endif
                 @if ($commonGraph['per_today_enrollment'] > 0)
                     <span class="text-success ms-2">{{ $commonGraph['per_today_enrollment'] }}% <i

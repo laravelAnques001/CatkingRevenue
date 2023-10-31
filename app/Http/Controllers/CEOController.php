@@ -37,45 +37,47 @@ class CEOController extends Controller
             }
 
             // return " startDate : $this->startDate ::::   endDate : $this->endDate :::: Last startDate : $this->lastStartDate ::::  Last endDate : $this->lastEndDate :::: Previous StartDay : $this->previousStartDate  :::: Previous EndDay : $this->previousEndDate";
+            $selectedStartDate = Carbon::parse($this->startDate)->format('Y-m-d');
+            $selectedEndDate = Carbon::parse($this->endDate)->format('Y-m-d');
 
             if ($course == 'sales') {
                 $sales = $this->getSalesData();
                 // return json_encode($sales);
-                return view('Admin.CeoRevenue.sales', ['sales' => $sales, 'startDate' => $this->startDate, 'endDate' => $this->endDate]);
+                return view('Admin.CeoRevenue.sales', ['sales' => $sales, 'startDate' => $this->startDate, 'endDate' => $this->endDate, 'selectedStartDate' => $selectedStartDate, 'selectedEndDate' => $selectedEndDate]);
             } elseif ($course == 'cat') {
                 // $cat = $this->getCATData();
                 $commonGraph = $this->commonData('cat');
                 // return json_encode($commonGraph);
-                return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
+                return view('Admin.CeoRevenue.commonGraph', ['commonGraph' => $commonGraph, 'selectedStartDate' => $selectedStartDate, 'selectedEndDate' => $selectedEndDate]);
             } elseif ($course == 'non_cat') {
                 // $nonCat = $this->getNonCATData();
                 $commonGraph = $this->commonData('non-cat');
                 // return json_encode($nonCat);
-                return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
+                return view('Admin.CeoRevenue.commonGraph', ['commonGraph' => $commonGraph, 'selectedStartDate' => $selectedStartDate, 'selectedEndDate' => $selectedEndDate]);
             } elseif ($course == 'study_abroad') {
                 // $studyAbroad = $this->getStudyAbroadData();
                 $commonGraph = $this->commonData('study-abroad');
                 // return json_encode($commonGraph);
-                return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
+                return view('Admin.CeoRevenue.commonGraph', ['commonGraph' => $commonGraph, 'selectedStartDate' => $selectedStartDate, 'selectedEndDate' => $selectedEndDate]);
             } elseif ($course == 'undergrad') {
                 // $undergrad = $this->getUnderGradData();
                 $commonGraph = $this->commonData('undergrad');
                 // return json_encode($undergrad);
-                return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
+                return view('Admin.CeoRevenue.commonGraph', ['commonGraph' => $commonGraph, 'selectedStartDate' => $selectedStartDate, 'selectedEndDate' => $selectedEndDate]);
             } elseif ($course == 'gdpi') {
                 // $gdpi = $this->getGDPIData();
                 $commonGraph = $this->commonData('gdpi');
                 // return json_encode($gdpi);
-                return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
+                return view('Admin.CeoRevenue.commonGraph', ['commonGraph' => $commonGraph, 'selectedStartDate' => $selectedStartDate, 'selectedEndDate' => $selectedEndDate]);
             } elseif ($course == 'mocks') {
                 // $mocks = $this->getMocksData();
                 $commonGraph = $this->commonData('mocks');
                 // return json_encode($mocks);
-                return view('Admin.CeoRevenue.commonGraph', compact('commonGraph'));
+                return view('Admin.CeoRevenue.commonGraph', ['commonGraph' => $commonGraph, 'selectedStartDate' => $selectedStartDate, 'selectedEndDate' => $selectedEndDate]);
             } else {
                 $revenue = $this->getRevenueData();
                 // return json_encode($revenue);
-                return view('Admin.CeoRevenue.revenue', compact('revenue'));
+                return view('Admin.CeoRevenue.revenue', ['revenue' => $revenue, 'selectedStartDate' => $selectedStartDate, 'selectedEndDate' => $selectedEndDate]);
             }
 
             return '<h1>Hello Dashboard</h1>';

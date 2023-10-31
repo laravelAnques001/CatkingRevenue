@@ -89,7 +89,7 @@
         $('input[aria-controls="DataTables_Table_0"]').addClass('rounded ms-2');
     });
     $(document).ready(function() {
-
+        $('.dashboardShowDate').html("({{ $selectedStartDate }} to {{ $selectedEndDate }})");
         var EchartsConversionColumnsBasicLight = function() {
             var _columnsBasicLightExample = function() {
                 if (typeof echarts == 'undefined') {
